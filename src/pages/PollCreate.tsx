@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PollForm from "@/components/PollForm";
+import PluginDownloadButton from "@/components/PluginDownloadButton";
 
 const PollCreate = () => {
   return (
@@ -37,6 +38,21 @@ const PollCreate = () => {
               className="glass-card p-6 sm:p-8 rounded-xl"
             >
               <PollForm />
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mt-8 flex justify-center"
+            >
+              <div className="glass-card p-6 rounded-xl w-full max-w-md">
+                <h3 className="font-semibold text-xl mb-3 text-center">WordPress Plugin</h3>
+                <p className="text-muted-foreground text-sm mb-4 text-center">
+                  Download the WordPress plugin files and install them on your WordPress site.
+                </p>
+                <PluginDownloadButton />
+              </div>
             </motion.div>
           </div>
         </div>
