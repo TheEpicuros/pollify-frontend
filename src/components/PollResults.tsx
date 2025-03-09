@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Poll, PollOption } from "@/lib/types";
+import { CustomProgress } from "@/components/ui/custom-progress";
 
 interface PollResultsProps {
   poll: Poll;
@@ -42,24 +43,20 @@ const PollResults = ({ poll, voted, animate = true }: PollResultsProps) => {
                 {getPercentage(option.votes)}%
               </span>
             </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
-              <motion.div
-                className={`h-full ${
-                  voted === option.id ? "bg-primary" : "bg-primary/70"
-                }`}
-                initial={{ width: "0%" }}
-                animate={{
-                  width: animationComplete
-                    ? `${getPercentage(option.votes)}%`
-                    : "0%",
-                }}
-                transition={{
-                  duration: 0.6,
-                  delay: index * 0.1,
-                  ease: "easeOut",
-                }}
+            
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: animationComplete ? 1 : 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
+              <CustomProgress 
+                value={getPercentage(option.votes)}
+                size="md"
+                fillClassName={voted === option.id ? "bg-primary" : "bg-primary/70"}
+                animated={voted === option.id}
               />
-            </div>
+            </motion.div>
+            
             <div className="text-xs text-muted-foreground">
               {option.votes.toLocaleString()} votes
             </div>

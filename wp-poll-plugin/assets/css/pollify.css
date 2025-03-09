@@ -1,4 +1,3 @@
-
 /* Pollify Plugin Styles */
 
 /* Poll Container */
@@ -120,6 +119,19 @@
     background-color: #3b82f6;
     border-radius: 9999px;
     transition: width 0.5s ease;
+}
+
+.pollify-progress-animated .pollify-poll-option-bar-fill {
+    animation: pollify-progress-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pollify-progress-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
 }
 
 .pollify-poll-total {

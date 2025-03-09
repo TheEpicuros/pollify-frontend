@@ -75,7 +75,10 @@ function pollify_enqueue_scripts() {
     wp_localize_script('pollify-script', 'pollifyData', array(
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('pollify-nonce'),
-        'siteUrl' => get_site_url()
+        'siteUrl' => get_site_url(),
+        'features' => array(
+            'animatedProgress' => true
+        )
     ));
 }
 add_action('wp_enqueue_scripts', 'pollify_enqueue_scripts');
