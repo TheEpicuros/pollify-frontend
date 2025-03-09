@@ -26,7 +26,8 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Browse Polls", path: "/polls" },
-    { name: "Create Poll", path: "/create" }
+    { name: "Create Poll", path: "/create" },
+    { name: "Progress", path: "/progress" }
   ];
 
   return (
