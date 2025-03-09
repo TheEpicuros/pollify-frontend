@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import PollBrowse from "./pages/PollBrowse";
 import PollCreate from "./pages/PollCreate";
 import PollView from "./pages/PollView";
+import Progress from "./pages/Progress";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/polls" element={<PollBrowse />} />
             <Route path="/create" element={<PollCreate />} />
             <Route path="/poll/:id" element={<PollView />} />
+            <Route path="/progress" element={<Progress />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
