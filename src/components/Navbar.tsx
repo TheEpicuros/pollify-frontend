@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, UserCircle } from "lucide-react";
 import AnimatedLogo from "./AnimatedLogo";
 
 const Navbar = () => {
@@ -27,7 +27,8 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Browse Polls", path: "/polls" },
     { name: "Create Poll", path: "/create" },
-    { name: "Progress", path: "/progress" }
+    { name: "Progress", path: "/progress" },
+    { name: "Dashboard", path: "/dashboard", icon: <UserCircle size={16} className="mr-1" /> }
   ];
 
   return (
@@ -53,8 +54,9 @@ const Navbar = () => {
                 location.pathname === link.path
                   ? "text-primary"
                   : "text-foreground hover:text-primary"
-              }`}
+              } ${link.icon ? "flex items-center" : ""}`}
             >
+              {link.icon}
               {link.name}
               {location.pathname === link.path && (
                 <motion.div
@@ -96,12 +98,13 @@ const Navbar = () => {
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${
                       location.pathname === link.path
                         ? "bg-primary/10 text-primary"
                         : "hover:bg-secondary text-foreground"
                     }`}
                   >
+                    {link.icon}
                     {link.name}
                   </Link>
                 ))}
