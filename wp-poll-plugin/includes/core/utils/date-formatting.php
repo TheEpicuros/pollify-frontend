@@ -15,13 +15,15 @@ if (!defined('ABSPATH')) {
  * @param string $date_string The date string to format
  * @return string Formatted date according to WordPress settings
  */
-function pollify_format_date($date_string) {
-    if (empty($date_string)) {
-        return '';
+if (!function_exists('pollify_format_date')) {
+    function pollify_format_date($date_string) {
+        if (empty($date_string)) {
+            return '';
+        }
+        
+        $timestamp = strtotime($date_string);
+        return date_i18n(get_option('date_format'), $timestamp);
     }
-    
-    $timestamp = strtotime($date_string);
-    return date_i18n(get_option('date_format'), $timestamp);
 }
 
 /**
@@ -30,13 +32,15 @@ function pollify_format_date($date_string) {
  * @param string $date_string The date string to format
  * @return string Formatted date and time according to WordPress settings
  */
-function pollify_format_datetime($date_string) {
-    if (empty($date_string)) {
-        return '';
+if (!function_exists('pollify_format_datetime')) {
+    function pollify_format_datetime($date_string) {
+        if (empty($date_string)) {
+            return '';
+        }
+        
+        $timestamp = strtotime($date_string);
+        return date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp);
     }
-    
-    $timestamp = strtotime($date_string);
-    return date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp);
 }
 
 /**
@@ -45,6 +49,8 @@ function pollify_format_datetime($date_string) {
  * @param string $timestamp The timestamp to format
  * @return string Formatted relative time (e.g., "5 minutes ago")
  */
-function pollify_get_time_ago($timestamp) {
-    return pollify_time_ago($timestamp);
+if (!function_exists('pollify_get_time_ago')) {
+    function pollify_get_time_ago($timestamp) {
+        return pollify_time_ago($timestamp);
+    }
 }

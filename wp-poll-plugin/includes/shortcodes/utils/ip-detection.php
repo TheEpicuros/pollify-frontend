@@ -1,3 +1,4 @@
+
 <?php
 /**
  * IP detection utility functions
@@ -58,4 +59,3 @@ function pollify_record_vote_by_ip($poll_id) {
     
     return false;
 }
-

@@ -9,6 +9,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function existence utility first
+require_once plugin_dir_path(__FILE__) . 'function-exists.php';
+
 // Include utility modules
 require_once plugin_dir_path(__FILE__) . 'array-handling.php';
 require_once plugin_dir_path(__FILE__) . 'formatting.php';
