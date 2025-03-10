@@ -96,6 +96,9 @@ function pollify_settings_page() {
             $(this).addClass('active');
             $($(this).attr('href')).addClass('active');
         });
+        
+        // Set first tab active by default
+        $('.pollify-settings-section:first').addClass('active');
     });
     </script>
     
