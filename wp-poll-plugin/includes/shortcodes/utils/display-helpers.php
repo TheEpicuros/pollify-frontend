@@ -10,18 +10,6 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Format date for display
- */
-function pollify_format_date($date_string) {
-    if (empty($date_string)) {
-        return '';
-    }
-    
-    $date = date_create($date_string);
-    return date_format($date, get_option('date_format') . ' ' . get_option('time_format'));
-}
-
-/**
  * Get poll status (active, ended, scheduled)
  */
 function pollify_get_poll_status($poll_id) {
@@ -47,3 +35,4 @@ function pollify_get_poll_type_name($poll_id) {
     
     return $term ? $term->name : __('Standard Poll', 'pollify');
 }
+

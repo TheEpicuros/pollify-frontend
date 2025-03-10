@@ -13,6 +13,11 @@ if (!defined('ABSPATH')) {
  * Render the poll header
  */
 function pollify_render_poll_header($poll_id, $poll, $total_votes, $poll_end_date, $has_ended) {
+    // Include the core date formatting function if not already included
+    if (!function_exists('pollify_format_date')) {
+        require_once POLLIFY_PLUGIN_DIR . 'includes/core/utils/date-formatting.php';
+    }
+    
     ob_start();
     ?>
     <div class="pollify-poll-header">
@@ -44,3 +49,4 @@ function pollify_render_poll_header($poll_id, $poll, $total_votes, $poll_end_dat
     <?php
     return ob_get_clean();
 }
+

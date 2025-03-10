@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Formatting helper functions
@@ -29,8 +28,13 @@ function pollify_get_user_ip() {
  * Format date
  */
 function pollify_format_date($date_string) {
-    $timestamp = strtotime($date_string);
-    return date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp);
+    // Include the core date formatting function if not already included
+    if (!function_exists('pollify_format_datetime')) {
+        require_once plugin_dir_path(dirname(__FILE__)) . 'core/utils/date-formatting.php';
+    }
+    
+    // Call the core function
+    return pollify_format_datetime($date_string);
 }
 
 /**
