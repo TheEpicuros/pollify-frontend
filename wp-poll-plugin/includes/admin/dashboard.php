@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Admin dashboard for Pollify
@@ -16,9 +15,14 @@ require_once POLLIFY_PLUGIN_DIR . 'includes/admin/dashboard/popular-polls.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/admin/dashboard/getting-started.php';
 
 /**
- * Render the admin dashboard
+ * Output the admin dashboard content
  */
-function pollify_admin_page() {
+pollify_render_dashboard_content();
+
+/**
+ * Render the admin dashboard content
+ */
+function pollify_render_dashboard_content() {
     // Get statistics
     $stats = pollify_get_stats();
     ?>

@@ -20,7 +20,7 @@ function pollify_admin_menu() {
         __('Pollify', 'pollify'),
         'manage_options',
         'pollify',
-        'pollify_admin_page',
+        'pollify_render_dashboard_page',
         'dashicons-chart-bar',
         30
     );
@@ -32,7 +32,7 @@ function pollify_admin_menu() {
         __('Dashboard', 'pollify'),
         'manage_options',
         'pollify',
-        'pollify_admin_page'
+        'pollify_render_dashboard_page'
     );
     
     // Add polls management pages
@@ -132,9 +132,9 @@ function pollify_admin_menu() {
 }
 
 /**
- * Admin dashboard page callback
+ * Admin dashboard page callback - wrapper to include dashboard.php
  */
-function pollify_admin_page() {
+function pollify_render_dashboard_page() {
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/dashboard.php';
 }
 
