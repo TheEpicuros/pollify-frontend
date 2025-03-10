@@ -48,7 +48,7 @@ export const tasks: Task[] = [
     title: "Results Visualization", 
     description: "Charts and graphs for poll results",
     status: "completed", 
-    progress: 95,
+    progress: 100,
     assignee: "UI Team", 
     priority: "medium",
     dueDate: "2023-11-20"
@@ -57,8 +57,8 @@ export const tasks: Task[] = [
     id: 5, 
     title: "Advanced Analytics", 
     description: "Detailed statistics and user insights",
-    status: "in-progress", 
-    progress: 70,
+    status: "completed", 
+    progress: 100,
     assignee: "Data Team", 
     priority: "medium",
     dueDate: "2023-12-10"
@@ -67,8 +67,8 @@ export const tasks: Task[] = [
     id: 6,
     title: "Social Sharing Integration",
     description: "Share polls across social media platforms",
-    status: "in-progress",
-    progress: 60,
+    status: "completed",
+    progress: 100,
     assignee: "Frontend Team",
     priority: "low",
     dueDate: "2024-01-05"

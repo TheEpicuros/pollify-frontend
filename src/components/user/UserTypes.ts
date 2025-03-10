@@ -9,6 +9,7 @@ export interface UserActivity {
   next_level_points: number;
   progress_percentage: number;
   achievements: Achievement[];
+  share_count?: number;
 }
 
 export interface Achievement {
@@ -23,4 +24,10 @@ export interface Achievement {
 export interface UserStatsProps {
   userId?: number;
   userName?: string;
+}
+
+export interface SocialPlatform {
+  name: string;
+  icon: string;
+  shareUrl: string;
 }

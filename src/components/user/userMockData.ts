@@ -8,6 +8,7 @@ export const getMockUserActivity = (): UserActivity => {
     comment_count: 17,
     rating_count: 23,
     poll_count: 5,
+    share_count: 8,
     current_level: 3,
     next_level_points: 300,
     progress_percentage: 86,
@@ -49,6 +50,14 @@ export const getMockUserActivity = (): UserActivity => {
         description: "Earn 500 points in the system",
         icon: "award",
         unlocked: false
+      },
+      {
+        id: "social_butterfly",
+        title: "Social Butterfly",
+        description: "Share 5 polls on social media",
+        icon: "share",
+        unlocked: true,
+        date_unlocked: "2023-12-05"
       }
     ]
   };
