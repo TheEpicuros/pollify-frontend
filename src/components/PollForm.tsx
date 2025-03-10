@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -90,14 +89,7 @@ const PollForm = () => {
     // Simulate API call
     setTimeout(() => {
       try {
-        const newPoll = createPoll(
-          formData.title,
-          formData.description || "",
-          formData.options,
-          formData.type,
-          formData.endDate,
-          formData.settings
-        );
+        const newPoll = createPoll(formData);
         
         toast.success("Poll created successfully");
         navigate(`/poll/${newPoll.id}`);
@@ -290,7 +282,7 @@ const PollForm = () => {
                   <Label htmlFor="results-display">Results Display Format</Label>
                   <Select 
                     value={formData.settings.resultsDisplay} 
-                    onValueChange={(value) => 
+                    onValueChange={(value: "bar" | "pie" | "donut" | "text") => 
                       setFormData({
                         ...formData,
                         settings: {
