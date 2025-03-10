@@ -3,16 +3,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Circle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-
-export interface Notification {
-  id: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-  type: "vote" | "comment" | "share" | "achievement";
-  pollId?: string;
-  pollTitle?: string;
-}
+import { Notification } from "@/lib/types";
 
 interface NotificationItemProps {
   notification: Notification;

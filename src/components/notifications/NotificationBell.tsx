@@ -4,7 +4,7 @@ import { Bell } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import NotificationsDropdown from "./NotificationsDropdown";
-import { useNotifications } from "@/hooks/use-notifications";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const NotificationBell: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -12,6 +12,8 @@ const NotificationBell: React.FC = () => {
 
   const handleMarkAsRead = (id: string) => {
     markAsRead(id);
+    // Optionally close the popover when a notification is read
+    // setOpen(false);
   };
 
   return (

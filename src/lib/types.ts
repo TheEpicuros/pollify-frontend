@@ -107,3 +107,13 @@ export interface PollDisplayOptions {
   width?: string;
   align?: 'left' | 'center' | 'right';
 }
+
+export interface Notification {
+  id: string;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  type: "vote" | "comment" | "share" | "achievement";
+  pollId?: string;
+  pollTitle?: string;
+}
