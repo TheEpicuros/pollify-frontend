@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Admin-specific functionality
@@ -49,12 +48,12 @@ function pollify_admin_scripts($hook) {
 }
 
 /**
- * Add plugin action links
+ * Add plugin action links for better user experience
  *
  * @param array $links Plugin action links
  * @return array Modified action links
  */
-function pollify_add_settings_link($links) {
+function pollify_plugin_add_settings_link($links) {
     $settings_link = '<a href="' . admin_url('admin.php?page=pollify-settings') . '">' . __('Settings', 'pollify') . '</a>';
     $docs_link = '<a href="' . admin_url('admin.php?page=pollify-help') . '">' . __('Help', 'pollify') . '</a>';
     

@@ -43,12 +43,8 @@ register_deactivation_hook(__FILE__, 'pollify_deactivate_plugin');
 // Include admin files only in admin area
 if (is_admin()) {
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/admin-menu.php';
+    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/admin-functions.php';  // Added admin functions
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/settings/main.php';
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/dashboard.php';
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/analytics.php';
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-activity.php';
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/help.php';
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/demo.php';
 }
 
 // Include front-end files
@@ -59,4 +55,4 @@ require_once POLLIFY_PLUGIN_DIR . 'includes/api/rest-api.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/helpers.php';
 
 // Add plugin action links
-add_filter('plugin_action_links_' . POLLIFY_PLUGIN_BASENAME, 'pollify_add_settings_link');
+add_filter('plugin_action_links_' . POLLIFY_PLUGIN_BASENAME, 'pollify_plugin_add_settings_link');

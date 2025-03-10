@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 /**
  * Check if a poll is valid for voting
  */
-function pollify_validate_poll($poll_id) {
+function pollify_validate_poll_for_voting($poll_id) {
     // Check if poll exists and is published
     $poll = get_post($poll_id);
     
@@ -55,4 +55,3 @@ function pollify_validate_poll($poll_id) {
         'message' => ''
     );
 }
-
