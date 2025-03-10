@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Poll data retrieval utility functions
@@ -20,6 +19,22 @@ function pollify_is_valid_poll($post_id) {
     $post = get_post($post_id);
     
     return $post && $post->post_type === 'poll';
+}
+
+/**
+ * Get poll type
+ * 
+ * @param int $poll_id Poll ID
+ * @return string Poll type slug
+ */
+function pollify_get_poll_type($poll_id) {
+    $terms = get_the_terms($poll_id, 'poll_type');
+    
+    if (!empty($terms) && !is_wp_error($terms)) {
+        return $terms[0]->slug;
+    }
+    
+    return 'multiple-choice'; // Default type
 }
 
 /**

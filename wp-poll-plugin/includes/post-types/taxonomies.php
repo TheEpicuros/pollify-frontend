@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Poll taxonomies
@@ -191,3 +190,4 @@ function pollify_get_poll_type_description($type_slug) {
     
     return '';
 }
+

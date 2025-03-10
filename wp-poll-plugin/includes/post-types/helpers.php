@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Poll helper functions
@@ -7,14 +6,6 @@
 // Exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;
-}
-
-/**
- * Helper function to get poll type
- */
-function pollify_get_poll_type($poll_id) {
-    $terms = wp_get_object_terms($poll_id, 'poll_type', array('fields' => 'slugs'));
-    return !empty($terms) ? $terms[0] : 'multiple-choice'; // Default to multiple choice
 }
 
 /**
@@ -72,3 +63,4 @@ function pollify_can_user_vote($poll_id) {
     
     return false;
 }
+

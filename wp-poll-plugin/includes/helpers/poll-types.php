@@ -10,19 +10,6 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Get poll type
- */
-function pollify_get_poll_type($poll_id) {
-    $poll_type = get_post_meta($poll_id, '_poll_type', true);
-    
-    if (empty($poll_type)) {
-        return 'multiple-choice'; // Default type
-    }
-    
-    return $poll_type;
-}
-
-/**
  * Get poll type name
  */
 function pollify_get_poll_type_name($poll_id) {
@@ -40,3 +27,4 @@ function pollify_get_poll_type_name($poll_id) {
     
     return isset($types[$poll_type]) ? $types[$poll_type] : __('Standard Poll', 'pollify');
 }
+
