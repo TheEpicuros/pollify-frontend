@@ -55,3 +55,4 @@ function pollify_validate_poll($poll_id) {
         'message' => ''
     );
 }
+

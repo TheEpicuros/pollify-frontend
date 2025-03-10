@@ -133,12 +133,12 @@ function pollify_is_valid_poll_type($poll_type) {
 }
 
 /**
- * Check if a poll exists and is valid
+ * Check if a poll exists and is of valid type
  * 
  * @param int $poll_id Poll ID to check
  * @return bool True if valid, false otherwise
  */
-function pollify_is_valid_poll($poll_id) {
+function pollify_validate_poll_exists($poll_id) {
     $poll = get_post($poll_id);
     
     if (!$poll || $poll->post_type !== 'poll') {
@@ -147,3 +147,4 @@ function pollify_is_valid_poll($poll_id) {
     
     return true;
 }
+
