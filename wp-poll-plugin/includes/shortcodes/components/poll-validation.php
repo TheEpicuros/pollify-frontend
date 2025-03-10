@@ -1,0 +1,99 @@
+
+<?php
+/**
+ * Poll validation functions
+ */
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Validate that a poll exists and is publishable
+ */
+function pollify_validate_poll_exists($poll_id) {
+    if (!$poll_id) {
+        return [
+            'valid' => false,
+            'message' => '<div class="pollify-error">' . __('Poll ID is required.', 'pollify') . '</div>'
+        ];
+    }
+    
+    $poll = get_post($poll_id);
+    
+    if (!$poll || $poll->post_type !== 'poll') {
+        return [
+            'valid' => false,
+            'message' => '<div class="pollify-error">' . __('Poll not found.', 'pollify') . '</div>'
+        ];
+    }
+    
+    // Check if poll is published
+    if ($poll->post_status !== 'publish' && !current_user_can('edit_post', $poll_id)) {
+        return [
+            'valid' => false,
+            'message' => '<div class="pollify-error">' . __('This poll is not published.', 'pollify') . '</div>'
+        ];
+    }
+    
+    return [
+        'valid' => true,
+        'poll' => $poll,
+        'message' => ''
+    ];
+}
+
+/**
+ * Get poll settings
+ */
+function pollify_get_poll_settings($poll_id) {
+    return [
+        'poll_type' => pollify_get_poll_type($poll_id),
+        'poll_end_date' => get_post_meta($poll_id, '_poll_end_date', true),
+        'always_show_results' => get_post_meta($poll_id, '_poll_show_results', true) === '1',
+        'results_display' => get_post_meta($poll_id, '_poll_results_display', true) ?: 'bar',
+        'allow_comments' => get_post_meta($poll_id, '_poll_allow_comments', true) === '1',
+    ];
+}
+
+/**
+ * Override poll settings with shortcode attributes
+ */
+function pollify_get_display_settings($poll_settings, $atts) {
+    return [
+        'show_results' => $atts['show_results'] !== null ? ($atts['show_results'] === 'yes') : $poll_settings['always_show_results'],
+        'show_social' => $atts['show_social'] === 'yes',
+        'show_ratings' => $atts['show_ratings'] === 'yes',
+        'show_comments' => $atts['show_comments'] !== null ? ($atts['show_comments'] === 'yes') : $poll_settings['allow_comments'],
+        'results_display' => $atts['display'] ? $atts['display'] : $poll_settings['results_display'],
+        'width' => !empty($atts['width']) ? ' style="width:' . esc_attr($atts['width']) . ';"' : '',
+        'align' => ' pollify-align-' . esc_attr($atts['align']),
+    ];
+}
+
+/**
+ * Get voting status for current user and poll
+ */
+function pollify_get_voting_status($poll_id) {
+    // Get vote counts
+    $vote_counts = pollify_get_vote_counts($poll_id);
+    $total_votes = array_sum($vote_counts);
+    
+    // Check if user has already voted
+    $user_ip = pollify_get_user_ip();
+    $user_id = get_current_user_id();
+    $has_voted = pollify_has_user_voted($poll_id, $user_ip, $user_id);
+    $user_vote = $has_voted ? pollify_get_user_vote($poll_id, $user_ip, $user_id) : null;
+    
+    // Check if poll has ended
+    $has_ended = pollify_has_poll_ended($poll_id);
+    
+    return [
+        'vote_counts' => $vote_counts,
+        'total_votes' => $total_votes,
+        'has_voted' => $has_voted,
+        'user_vote' => $user_vote,
+        'has_ended' => $has_ended
+    ];
+}
