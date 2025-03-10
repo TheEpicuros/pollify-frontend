@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Shortcodes for the Pollify plugin
@@ -100,6 +99,10 @@ function pollify_register_gutenberg_blocks() {
             'filterBy' => array(
                 'type' => 'array',
                 'default' => []
+            ),
+            'pollType' => array(
+                'type' => 'string',
+                'default' => ''
             )
         ),
         'render_callback' => 'pollify_render_browse_block'
@@ -116,6 +119,10 @@ function pollify_register_gutenberg_blocks() {
             'redirect' => array(
                 'type' => 'string',
                 'default' => ''
+            ),
+            'defaultType' => array(
+                'type' => 'string',
+                'default' => 'multiple-choice'
             )
         ),
         'render_callback' => 'pollify_render_create_block'
@@ -163,7 +170,8 @@ function pollify_render_browse_block($attributes) {
         'orderby' => isset($attributes['orderBy']) ? $attributes['orderBy'] : 'date',
         'order' => isset($attributes['order']) ? $attributes['order'] : 'desc',
         'show_filters' => isset($attributes['showFilters']) ? ($attributes['showFilters'] ? 'yes' : 'no') : 'yes',
-        'filter_by' => isset($attributes['filterBy']) ? implode(',', $attributes['filterBy']) : ''
+        'filter_by' => isset($attributes['filterBy']) ? implode(',', $attributes['filterBy']) : '',
+        'poll_type' => isset($attributes['pollType']) ? $attributes['pollType'] : ''
     );
     
     $shortcode_string = '';
@@ -209,9 +217,14 @@ function pollify_get_polls_for_blocks() {
     $formatted_polls = array();
     
     foreach ($polls as $poll) {
+        // Get poll type
+        $poll_type = pollify_get_poll_type($poll->ID);
+        
         $formatted_polls[] = array(
             'id' => $poll->ID,
-            'title' => get_the_title($poll)
+            'title' => get_the_title($poll),
+            'type' => $poll_type,
+            'votes' => pollify_get_total_votes($poll->ID)
         );
     }
     
@@ -222,15 +235,47 @@ function pollify_get_polls_for_blocks() {
  * Get poll types
  */
 function pollify_get_poll_types() {
-    return array(
-        'binary' => __('Yes/No', 'pollify'),
-        'multiple-choice' => __('Multiple Choice', 'pollify'),
-        'check-all' => __('Multiple Answers', 'pollify'),
-        'ranked-choice' => __('Ranked Choice', 'pollify'),
-        'rating-scale' => __('Rating Scale', 'pollify'),
-        'open-ended' => __('Open Ended', 'pollify'),
-        'image-based' => __('Image Based', 'pollify')
-    );
+    $terms = get_terms(array(
+        'taxonomy' => 'poll_type',
+        'hide_empty' => false,
+    ));
+    
+    $poll_types = array();
+    
+    foreach ($terms as $term) {
+        $poll_types[$term->slug] = array(
+            'name' => $term->name,
+            'description' => $term->description
+        );
+    }
+    
+    // Fallback if no terms found
+    if (empty($poll_types)) {
+        return array(
+            'binary' => array(
+                'name' => __('Yes/No', 'pollify'),
+                'description' => __('Simple yes/no questions', 'pollify')
+            ),
+            'multiple-choice' => array(
+                'name' => __('Multiple Choice', 'pollify'),
+                'description' => __('Select one from multiple options', 'pollify')
+            ),
+            'check-all' => array(
+                'name' => __('Multiple Answers', 'pollify'), 
+                'description' => __('Select multiple options', 'pollify')
+            ),
+            'image-based' => array(
+                'name' => __('Image Based', 'pollify'),
+                'description' => __('Visual polls with images', 'pollify')
+            ),
+            'rating-scale' => array(
+                'name' => __('Rating Scale', 'pollify'),
+                'description' => __('Rate on a scale', 'pollify')
+            )
+        );
+    }
+    
+    return $poll_types;
 }
 
 /**
@@ -319,6 +364,15 @@ function pollify_add_help_tab() {
             '<li><code>display</code> - ' . __('Results display type (bar, pie, donut, text)', 'pollify') . '</li>' .
             '<li><code>width</code> - ' . __('Poll width (e.g., 100%, 500px)', 'pollify') . '</li>' .
             '<li><code>align</code> - ' . __('Poll alignment (left, center, right)', 'pollify') . '</li>' .
+            '</ul>' .
+            '<h3>' . __('Poll Types', 'pollify') . '</h3>' .
+            '<p>' . __('When creating a poll, you can choose from these poll types:', 'pollify') . '</p>' .
+            '<ul>' .
+            '<li><strong>' . __('Binary Choice', 'pollify') . '</strong> - ' . __('Simple yes/no or either/or questions', 'pollify') . '</li>' .
+            '<li><strong>' . __('Multiple Choice', 'pollify') . '</strong> - ' . __('Select one option from multiple choices', 'pollify') . '</li>' .
+            '<li><strong>' . __('Multiple Answers', 'pollify') . '</strong> - ' . __('Select multiple options that apply', 'pollify') . '</li>' .
+            '<li><strong>' . __('Image Based', 'pollify') . '</strong> - ' . __('Use images as answer options', 'pollify') . '</li>' .
+            '<li><strong>' . __('Rating Scale', 'pollify') . '</strong> - ' . __('Rate on a numerical scale', 'pollify') . '</li>' .
             '</ul>'
     ));
 }

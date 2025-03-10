@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState } from "react";
-import { PollFormData } from "@/lib/types";
+import { PollFormData, PollType } from "@/lib/types";
 
 interface PollFormContextType {
   formData: PollFormData;
@@ -11,6 +11,7 @@ interface PollFormContextType {
   setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
   currentTab: string;
   setCurrentTab: React.Dispatch<React.SetStateAction<string>>;
+  getDefaultOptionsForType: (type: PollType) => string[];
 }
 
 const PollFormContext = createContext<PollFormContextType | undefined>(undefined);
@@ -34,6 +35,28 @@ export const PollFormProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTab, setCurrentTab] = useState("basic");
 
+  // Helper function to get default options based on poll type
+  const getDefaultOptionsForType = (type: PollType): string[] => {
+    switch (type) {
+      case "binary":
+        return ["Yes", "No"];
+      case "rating-scale":
+        return ["1", "2", "3", "4", "5"];
+      case "open-ended":
+        return ["Open Response"];
+      case "check-all":
+        return ["Option 1", "Option 2", "Option 3"];
+      case "ranked-choice":
+        return ["Option 1", "Option 2", "Option 3"];
+      case "image-based":
+        return ["Image 1", "Image 2"];
+      case "quiz":
+        return ["Answer 1", "Answer 2", "Answer 3", "Answer 4"];
+      default:
+        return ["", ""];
+    }
+  };
+
   return (
     <PollFormContext.Provider value={{
       formData,
@@ -43,7 +66,8 @@ export const PollFormProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       date,
       setDate,
       currentTab,
-      setCurrentTab
+      setCurrentTab,
+      getDefaultOptionsForType
     }}>
       {children}
     </PollFormContext.Provider>
