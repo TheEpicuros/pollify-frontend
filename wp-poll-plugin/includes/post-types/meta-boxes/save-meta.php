@@ -60,6 +60,17 @@ function pollify_save_poll_meta($post_id, $post) {
             $images = array_map('absint', $_POST['poll_option_images']);
             update_post_meta($post_id, '_poll_option_images', $images);
         }
+        
+        // For multi-stage polls, save the stages
+        if ($poll_type === 'multi-stage' && isset($_POST['poll_stages'])) {
+            $stages = array_map('sanitize_text_field', $_POST['poll_stages']);
+            $stages = array_filter($stages); // Remove empty stages
+            update_post_meta($post_id, '_poll_stages', $stages);
+            
+            // Current stage (default to 0 if not set)
+            $current_stage = isset($_POST['_poll_current_stage']) ? absint($_POST['_poll_current_stage']) : 0;
+            update_post_meta($post_id, '_poll_current_stage', $current_stage);
+        }
     }
     
     // Save other poll settings
@@ -95,6 +106,27 @@ function pollify_save_poll_meta($post_id, $post) {
         if (isset($_POST['_poll_max_votes'])) {
             $max_votes = absint($_POST['_poll_max_votes']);
             update_post_meta($post_id, '_poll_max_votes', $max_votes);
+        }
+        
+        // IP restriction
+        update_post_meta($post_id, '_poll_ip_restriction', isset($_POST['_poll_ip_restriction']) ? '1' : '0');
+        
+        // Vote frequency
+        if (isset($_POST['_poll_vote_frequency'])) {
+            $vote_frequency = sanitize_text_field($_POST['_poll_vote_frequency']);
+            update_post_meta($post_id, '_poll_vote_frequency', $vote_frequency);
+        }
+        
+        // Comment moderation
+        update_post_meta($post_id, '_poll_moderation', isset($_POST['_poll_moderation']) ? '1' : '0');
+        
+        // Auto-close poll
+        update_post_meta($post_id, '_poll_auto_close', isset($_POST['_poll_auto_close']) ? '1' : '0');
+        
+        // Vote threshold
+        if (isset($_POST['_poll_vote_threshold'])) {
+            $vote_threshold = absint($_POST['_poll_vote_threshold']);
+            update_post_meta($post_id, '_poll_vote_threshold', $vote_threshold);
         }
         
         // Notification email

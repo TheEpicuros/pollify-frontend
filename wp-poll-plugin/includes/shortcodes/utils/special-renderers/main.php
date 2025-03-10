@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . 'open-ended.php';
 require_once plugin_dir_path(__FILE__) . 'ranked-choice.php';
 require_once plugin_dir_path(__FILE__) . 'rating-scale.php';
+require_once plugin_dir_path(__FILE__) . 'multi-stage.php';
 
 /**
  * Compatibility function to ensure older code still works
@@ -38,4 +39,11 @@ function pollify_render_ranked_choice_results($poll_id, $options, $vote_counts) 
  */
 function pollify_render_rating_scale_results($poll_id, $options, $vote_counts, $total_votes) {
     return Pollify_RatingScale_Renderer::render_results($poll_id, $options, $vote_counts, $total_votes);
+}
+
+/**
+ * Compatibility function for multi-stage polls
+ */
+function pollify_render_multi_stage_results($poll_id, $options, $vote_counts, $total_votes) {
+    return Pollify_MultiStage_Renderer::render_results($poll_id, $options, $vote_counts, $total_votes);
 }

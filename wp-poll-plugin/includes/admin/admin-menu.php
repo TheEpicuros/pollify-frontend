@@ -53,6 +53,24 @@ function pollify_admin_menu() {
         'post-new.php?post_type=poll'
     );
     
+    // Add poll categories/tags page
+    add_submenu_page(
+        'pollify',
+        __('Poll Categories', 'pollify'),
+        __('Categories', 'pollify'),
+        'manage_options',
+        'edit-tags.php?taxonomy=poll_category&post_type=poll'
+    );
+    
+    // Add poll types page
+    add_submenu_page(
+        'pollify',
+        __('Poll Types', 'pollify'),
+        __('Poll Types', 'pollify'),
+        'manage_options',
+        'edit-tags.php?taxonomy=poll_type&post_type=poll'
+    );
+    
     // Add analytics page
     add_submenu_page(
         'pollify',
@@ -71,6 +89,16 @@ function pollify_admin_menu() {
         'manage_options',
         'pollify-user-activity',
         'pollify_user_activity_page'
+    );
+    
+    // Add user management page
+    add_submenu_page(
+        'pollify',
+        __('User Permissions', 'pollify'),
+        __('User Permissions', 'pollify'),
+        'manage_options',
+        'pollify-user-permissions',
+        'pollify_user_permissions_page'
     );
     
     // Add settings page
@@ -113,6 +141,13 @@ function pollify_analytics_page() {
  */
 function pollify_user_activity_page() {
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-activity.php';
+}
+
+/**
+ * User permissions page callback
+ */
+function pollify_user_permissions_page() {
+    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-permissions.php';
 }
 
 /**
