@@ -12,100 +12,244 @@ if (!defined('ABSPATH')) {
 /**
  * Render the poll voting form
  */
-function pollify_render_poll_form($poll_id, $poll, $options, $poll_type, $show_results) {
+function pollify_render_poll_form($poll_id, $poll, $options, $poll_type, $show_view_results_link = true) {
+    $form_id = 'pollify-form-' . $poll_id;
+    
     ob_start();
-    
-    // Check if this is an image-based poll
-    $option_images = array();
-    if ($poll_type === 'image-based') {
-        $option_images = get_post_meta($poll_id, '_poll_option_images', true);
-    }
-    
-    // Different input types based on poll type
-    $input_type = 'radio';
-    if ($poll_type === 'check-all') {
-        $input_type = 'checkbox';
-    }
-    
     ?>
-    <form class="pollify-poll-form" data-poll-id="<?php echo $poll_id; ?>">
-        <?php if ($poll_type === 'ranked-choice'): ?>
-        <div class="pollify-ranked-choices">
-            <p class="pollify-instruction"><?php _e('Drag to rank your choices in order of preference:', 'pollify'); ?></p>
-            <ul class="pollify-sortable-options">
-                <?php foreach ($options as $option_id => $option_text) : ?>
-                <li class="pollify-sortable-option" data-option-id="<?php echo esc_attr($option_id); ?>">
-                    <span class="pollify-drag-handle dashicons dashicons-menu"></span>
-                    <span class="pollify-option-text"><?php echo esc_html($option_text); ?></span>
-                </li>
-                <?php endforeach; ?>
-            </ul>
-            <input type="hidden" name="ranked_options" value="">
-        </div>
+    <form id="<?php echo esc_attr($form_id); ?>" class="pollify-poll-form pollify-poll-type-<?php echo esc_attr($poll_type); ?>" method="post">
+        <?php wp_nonce_field('pollify_vote_' . $poll_id, 'pollify_vote_nonce'); ?>
+        <input type="hidden" name="poll_id" value="<?php echo esc_attr($poll_id); ?>">
         
-        <?php elseif ($poll_type === 'rating-scale'): ?>
-        <div class="pollify-rating-scale">
-            <div class="pollify-rating-question"><?php echo esc_html($poll->post_title); ?></div>
-            <div class="pollify-rating-options">
-                <?php 
-                // Rating scale typically from 1-5 or 1-10
-                $scale_max = count($options);
-                for ($i = 1; $i <= $scale_max; $i++) : 
-                    $option_id = array_keys($options)[$i-1];
-                ?>
-                <label class="pollify-rating-option">
-                    <input type="radio" name="poll_option" value="<?php echo esc_attr($option_id); ?>">
-                    <span class="pollify-rating-value"><?php echo $i; ?></span>
-                    <span class="pollify-rating-label"><?php echo esc_html($options[$option_id]); ?></span>
-                </label>
-                <?php endfor; ?>
-            </div>
-        </div>
-        
-        <?php else: ?>
-        <div class="pollify-poll-options-list <?php echo $poll_type === 'image-based' ? 'pollify-image-options' : ''; ?>">
-            <?php foreach ($options as $option_id => $option_text) : ?>
-            <div class="pollify-poll-option">
-                <label>
-                    <input type="<?php echo $input_type; ?>" name="poll_option<?php echo $input_type === 'checkbox' ? '[]' : ''; ?>" value="<?php echo esc_attr($option_id); ?>">
+        <div class="pollify-poll-options-list">
+            <?php 
+            switch ($poll_type) {
+                case 'binary':
+                    echo pollify_render_binary_options($poll_id, $options);
+                    break;
                     
-                    <?php if ($poll_type === 'image-based' && !empty($option_images[$option_id])) : 
-                        $image_url = wp_get_attachment_image_url($option_images[$option_id], 'medium');
-                        if ($image_url) :
-                    ?>
-                    <div class="pollify-option-image">
-                        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($option_text); ?>">
-                    </div>
-                    <?php endif; endif; ?>
+                case 'check-all':
+                    echo pollify_render_checkbox_options($poll_id, $options);
+                    break;
                     
-                    <span class="pollify-option-text"><?php echo esc_html($option_text); ?></span>
-                </label>
-            </div>
-            <?php endforeach; ?>
+                case 'image-based':
+                    echo pollify_render_image_options($poll_id, $options);
+                    break;
+                    
+                case 'rating-scale':
+                    echo pollify_render_rating_options($poll_id, $options);
+                    break;
+                    
+                case 'multiple-choice':
+                default:
+                    echo pollify_render_radio_options($poll_id, $options);
+                    break;
+            }
+            ?>
         </div>
-        <?php endif; ?>
         
-        <div class="pollify-poll-submit">
-            <button type="submit" class="pollify-poll-vote-button">
-                <?php _e('Vote', 'pollify'); ?>
-            </button>
+        <div class="pollify-poll-actions">
+            <button type="submit" class="pollify-submit-vote"><?php _e('Vote', 'pollify'); ?></button>
             
-            <?php if ($show_results): ?>
-            <button type="button" class="pollify-view-results-button">
-                <?php _e('View Results', 'pollify'); ?>
-            </button>
+            <?php if ($show_view_results_link): ?>
+            <a href="<?php echo esc_url(add_query_arg('results', '1')); ?>" class="pollify-view-results"><?php _e('View Results', 'pollify'); ?></a>
             <?php endif; ?>
         </div>
-        
-        <div class="pollify-poll-message" style="display: none;"></div>
     </form>
+    
+    <div class="pollify-loading-indicator" style="display: none;">
+        <span class="pollify-loader"></span>
+        <span class="pollify-loading-text"><?php _e('Processing your vote...', 'pollify'); ?></span>
+    </div>
     <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render standard radio button options
+ */
+function pollify_render_radio_options($poll_id, $options) {
+    ob_start();
+    
+    foreach ($options as $option_id => $option_text) :
+    ?>
+    <div class="pollify-poll-option">
+        <label for="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($option_id); ?>" class="pollify-option-label">
+            <input 
+                type="radio" 
+                name="option_id" 
+                id="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($option_id); ?>" 
+                value="<?php echo esc_attr($option_id); ?>" 
+                required
+            >
+            <span class="pollify-option-text"><?php echo esc_html($option_text); ?></span>
+        </label>
+    </div>
+    <?php 
+    endforeach;
     
     return ob_get_clean();
 }
 
 /**
- * Render user vote information
+ * Render checkbox options (for multi-select polls)
+ */
+function pollify_render_checkbox_options($poll_id, $options) {
+    ob_start();
+    
+    foreach ($options as $option_id => $option_text) :
+    ?>
+    <div class="pollify-poll-option">
+        <label for="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($option_id); ?>" class="pollify-option-label">
+            <input 
+                type="checkbox" 
+                name="option_id[]" 
+                id="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($option_id); ?>" 
+                value="<?php echo esc_attr($option_id); ?>"
+            >
+            <span class="pollify-option-text"><?php echo esc_html($option_text); ?></span>
+        </label>
+    </div>
+    <?php 
+    endforeach;
+    
+    return ob_get_clean();
+}
+
+/**
+ * Render binary (yes/no) options
+ */
+function pollify_render_binary_options($poll_id, $options) {
+    ob_start();
+    
+    // Use just the first two options, regardless of how many are stored
+    $option_keys = array_keys($options);
+    $yes_option_id = isset($option_keys[0]) ? $option_keys[0] : '1';
+    $no_option_id = isset($option_keys[1]) ? $option_keys[1] : '2';
+    
+    $yes_text = isset($options[$yes_option_id]) ? $options[$yes_option_id] : __('Yes', 'pollify');
+    $no_text = isset($options[$no_option_id]) ? $options[$no_option_id] : __('No', 'pollify');
+    ?>
+    <div class="pollify-poll-options-binary">
+        <div class="pollify-poll-option pollify-poll-option-yes">
+            <label for="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($yes_option_id); ?>" class="pollify-option-label pollify-option-yes">
+                <input 
+                    type="radio" 
+                    name="option_id" 
+                    id="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($yes_option_id); ?>" 
+                    value="<?php echo esc_attr($yes_option_id); ?>" 
+                    required
+                >
+                <span class="pollify-option-text"><?php echo esc_html($yes_text); ?></span>
+            </label>
+        </div>
+        
+        <div class="pollify-poll-option pollify-poll-option-no">
+            <label for="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($no_option_id); ?>" class="pollify-option-label pollify-option-no">
+                <input 
+                    type="radio" 
+                    name="option_id" 
+                    id="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($no_option_id); ?>" 
+                    value="<?php echo esc_attr($no_option_id); ?>" 
+                    required
+                >
+                <span class="pollify-option-text"><?php echo esc_html($no_text); ?></span>
+            </label>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render image-based options
+ */
+function pollify_render_image_options($poll_id, $options) {
+    $option_images = get_post_meta($poll_id, '_poll_option_images', true);
+    
+    ob_start();
+    ?>
+    <div class="pollify-poll-options-images">
+        <?php 
+        foreach ($options as $option_id => $option_text) :
+            $image_id = isset($option_images[$option_id]) ? $option_images[$option_id] : 0;
+            $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'medium') : '';
+        ?>
+        <div class="pollify-poll-option pollify-poll-option-image">
+            <label for="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($option_id); ?>" class="pollify-option-label">
+                <input 
+                    type="radio" 
+                    name="option_id" 
+                    id="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($option_id); ?>" 
+                    value="<?php echo esc_attr($option_id); ?>" 
+                    required
+                >
+                
+                <?php if ($image_url) : ?>
+                <div class="pollify-option-image">
+                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($option_text); ?>">
+                </div>
+                <?php endif; ?>
+                
+                <span class="pollify-option-text"><?php echo esc_html($option_text); ?></span>
+            </label>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render rating scale options
+ */
+function pollify_render_rating_options($poll_id, $options) {
+    ob_start();
+    ?>
+    <div class="pollify-poll-options-rating">
+        <div class="pollify-rating-scale">
+            <?php 
+            // Get min and max labels
+            $option_keys = array_keys($options);
+            $min_option_id = isset($option_keys[0]) ? $option_keys[0] : '1';
+            $max_option_id = isset($option_keys[count($option_keys) - 1]) ? $option_keys[count($option_keys) - 1] : '5';
+            
+            $min_label = isset($options[$min_option_id]) ? $options[$min_option_id] : '';
+            $max_label = isset($options[$max_option_id]) ? $options[$max_option_id] : '';
+            ?>
+            
+            <?php if ($min_label) : ?>
+            <div class="pollify-rating-label pollify-rating-min"><?php echo esc_html($min_label); ?></div>
+            <?php endif; ?>
+            
+            <div class="pollify-rating-options">
+                <?php foreach ($options as $option_id => $option_text) : ?>
+                <div class="pollify-rating-option">
+                    <label for="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($option_id); ?>" class="pollify-rating-value">
+                        <input 
+                            type="radio" 
+                            name="option_id" 
+                            id="pollify-option-<?php echo esc_attr($poll_id); ?>-<?php echo esc_attr($option_id); ?>" 
+                            value="<?php echo esc_attr($option_id); ?>" 
+                            required
+                        >
+                        <span><?php echo esc_html($option_text); ?></span>
+                    </label>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <?php if ($max_label) : ?>
+            <div class="pollify-rating-label pollify-rating-max"><?php echo esc_html($max_label); ?></div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render message about user's vote
  */
 function pollify_render_user_vote_info($user_vote) {
     if (!$user_vote) {
@@ -115,12 +259,15 @@ function pollify_render_user_vote_info($user_vote) {
     ob_start();
     ?>
     <div class="pollify-user-vote-info">
-        <?php 
+        <p>
+            <?php 
             printf(
-                __('You voted on %s', 'pollify'), 
-                pollify_format_date($user_vote->voted_at)
+                __('You voted for "%s" on %s', 'pollify'),
+                esc_html($user_vote->option_text),
+                date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($user_vote->voted_at))
             ); 
-        ?>
+            ?>
+        </p>
     </div>
     <?php
     return ob_get_clean();
