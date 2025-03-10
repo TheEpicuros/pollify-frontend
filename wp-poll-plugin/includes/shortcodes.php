@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Include shortcode files
+// Include shortcode utility files
 require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/poll-utils.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/poll-display.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/poll-create.php';
