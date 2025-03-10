@@ -7,58 +7,79 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { ArrowUpRight, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import AnalyticsDashboard from "@/components/AnalyticsDashboard";
+import { CustomProgress } from "@/components/ui/custom-progress";
 
-// Sample project tasks data
+// Updated project tasks data with accurate completion status
 const tasks = [
   { 
     id: 1, 
-    title: "Database Implementation",
-    description: "Set up database tables and relations",
+    title: "Core Poll Plugin Architecture",
+    description: "WordPress plugin foundation and React integration",
     status: "completed", 
     progress: 100,
-    assignee: "Alex",
+    assignee: "Dev Team",
     priority: "high",
     dueDate: "2023-09-30" 
   },
   { 
     id: 2, 
-    title: "User Authentication", 
-    description: "Implement login and registration",
+    title: "Poll Creation Interface", 
+    description: "Form components for creating different poll types",
     status: "completed", 
     progress: 100,
-    assignee: "Maria", 
+    assignee: "Frontend Team", 
     priority: "high",
     dueDate: "2023-10-15"
   },
   { 
     id: 3, 
-    title: "Poll Creation Interface", 
-    description: "Frontend for creating polls",
-    status: "in-progress", 
-    progress: 85,
-    assignee: "John", 
-    priority: "medium",
+    title: "Poll Type Implementation", 
+    description: "Support for multiple poll types (quiz, rating, etc.)",
+    status: "completed", 
+    progress: 100,
+    assignee: "Dev Team", 
+    priority: "high",
     dueDate: "2023-11-05"
   },
   { 
     id: 4, 
     title: "Results Visualization", 
     description: "Charts and graphs for poll results",
-    status: "in-progress", 
-    progress: 60,
-    assignee: "Sarah", 
+    status: "completed", 
+    progress: 95,
+    assignee: "UI Team", 
     priority: "medium",
     dueDate: "2023-11-20"
   },
   { 
     id: 5, 
-    title: "Social Sharing", 
-    description: "Implement sharing features",
-    status: "planned", 
-    progress: 0,
-    assignee: "David", 
-    priority: "low",
+    title: "Advanced Analytics", 
+    description: "Detailed statistics and user insights",
+    status: "in-progress", 
+    progress: 70,
+    assignee: "Data Team", 
+    priority: "medium",
     dueDate: "2023-12-10"
+  },
+  {
+    id: 6,
+    title: "Social Sharing Integration",
+    description: "Share polls across social media platforms",
+    status: "in-progress",
+    progress: 60,
+    assignee: "Frontend Team",
+    priority: "low",
+    dueDate: "2024-01-05"
+  },
+  {
+    id: 7,
+    title: "User Dashboard Refinement",
+    description: "Enhanced user poll management interface",
+    status: "in-progress",
+    progress: 40,
+    assignee: "UX Team",
+    priority: "medium",
+    dueDate: "2024-01-20"
   }
 ];
 
@@ -95,7 +116,12 @@ const ProjectProgress = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{overallProgress}%</div>
-                <Progress value={overallProgress} className="h-2 mt-2" />
+                <CustomProgress 
+                  value={overallProgress} 
+                  className="h-2 mt-2" 
+                  gradient={true}
+                  animated={overallProgress < 100}
+                />
                 <p className="text-xs text-muted-foreground mt-2">
                   {completedTasks.length} of {tasks.length} tasks completed
                 </p>
@@ -110,8 +136,8 @@ const ProjectProgress = () => {
                 <div className="text-2xl font-bold">{completedTasks.length}</div>
                 <div className="flex items-center mt-2">
                   <div className="text-xs text-emerald-600 font-medium flex items-center">
-                    <ArrowUpRight className="h-3 w-3 mr-1" />
-                    +2 this week
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Core functionality ready
                   </div>
                 </div>
               </CardContent>
@@ -124,8 +150,9 @@ const ProjectProgress = () => {
               <CardContent>
                 <div className="text-2xl font-bold">{inProgressTasks.length}</div>
                 <div className="flex items-center mt-2">
-                  <div className="text-xs text-muted-foreground">
-                    Expected completion: 2 weeks
+                  <div className="text-xs text-amber-600 font-medium flex items-center">
+                    <Clock className="h-3 w-3 mr-1" />
+                    Enhancements underway
                   </div>
                 </div>
               </CardContent>
@@ -138,8 +165,9 @@ const ProjectProgress = () => {
               <CardContent>
                 <div className="text-2xl font-bold">{plannedTasks.length}</div>
                 <div className="flex items-center mt-2">
-                  <div className="text-xs text-muted-foreground">
-                    Planned for next sprint
+                  <div className="text-xs text-blue-600 font-medium flex items-center">
+                    <ArrowUpRight className="h-3 w-3 mr-1" />
+                    Ready for testing
                   </div>
                 </div>
               </CardContent>
@@ -218,7 +246,12 @@ const TaskCard = ({ task }: TaskProps) => {
         </Badge>
       </div>
       
-      <Progress value={task.progress} className="h-2 mt-4 mb-2" />
+      <CustomProgress 
+        value={task.progress} 
+        className="h-2 mt-4 mb-2" 
+        gradient={task.progress === 100}
+        animated={task.progress < 100 && task.progress > 0}
+      />
       
       <div className="flex justify-between items-center mt-4 text-sm">
         <div className="flex items-center">
