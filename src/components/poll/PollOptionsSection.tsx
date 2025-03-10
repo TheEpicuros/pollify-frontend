@@ -1,7 +1,8 @@
 
-import { Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PollOptionItem from "./PollOptionItem";
+import PollOptionsHeader from "./PollOptionsHeader";
+import AddOptionButton from "./AddOptionButton";
 
 interface PollOptionsSectionProps {
   options: string[];
@@ -18,14 +19,7 @@ const PollOptionsSection = ({
 }: PollOptionsSectionProps) => {
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium">
-          Poll Options <span className="text-destructive">*</span>
-        </label>
-        <span className="text-xs text-muted-foreground">
-          {options.length}/10 options
-        </span>
-      </div>
+      <PollOptionsHeader optionsCount={options.length} />
 
       <div className="space-y-3">
         <AnimatePresence mode="popLayout">
@@ -42,15 +36,10 @@ const PollOptionsSection = ({
         </AnimatePresence>
       </div>
 
-      <button
-        type="button"
-        onClick={handleAddOption}
+      <AddOptionButton
+        handleAddOption={handleAddOption}
         disabled={options.length >= 10}
-        className="w-full py-2 px-4 border border-dashed rounded-lg text-sm font-medium flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <Plus size={16} />
-        Add Option
-      </button>
+      />
     </div>
   );
 };
