@@ -20,7 +20,7 @@ require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/utils/rating-system.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/utils/special-poll-renderers.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/poll-utils.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/poll-display.php';
-require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/poll-create.php';
+require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/poll-create/main.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/shortcodes/poll-browse.php';
 
 // Include core shortcode functionality
