@@ -12,6 +12,6 @@ if (!defined('ABSPATH')) {
 // Include modularized files
 require_once plugin_dir_path(__FILE__) . 'post-types/register.php';
 require_once plugin_dir_path(__FILE__) . 'post-types/taxonomies.php';
-require_once plugin_dir_path(__FILE__) . 'post-types/meta-boxes.php';
+require_once plugin_dir_path(__FILE__) . 'post-types/meta-boxes/main.php';
 require_once plugin_dir_path(__FILE__) . 'post-types/save-meta.php';
 require_once plugin_dir_path(__FILE__) . 'post-types/helpers.php';
