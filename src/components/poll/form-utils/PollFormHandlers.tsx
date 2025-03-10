@@ -12,14 +12,14 @@ interface PollFormHandlersProps {
   getDefaultOptionsForType: (type: PollType) => string[];
 }
 
-export const PollFormHandlers: React.FC<PollFormHandlersProps> = ({
+export const usePollFormHandlers = ({
   formData,
   setFormData,
   setCurrentTab,
   ratingScale,
   setRatingScale,
   getDefaultOptionsForType,
-}) => {
+}: PollFormHandlersProps) => {
   const handleMoveToNextTab = () => {
     if (!formData.title.trim()) {
       toast.error("Please enter a poll title");

@@ -8,14 +8,14 @@ import { toast } from "sonner";
 import BasicPollFields from "./form-types/BasicPollFields";
 import PollTypeSelector from "./form-types/PollTypeSelector";
 import PollTypeContent from "./form-utils/PollTypeContent";
-import { PollFormHandlers } from "./form-utils/PollFormHandlers";
+import { usePollFormHandlers } from "./form-utils/PollFormHandlers";
 
 const BasicInfoForm: React.FC = () => {
   const { formData, setFormData, setCurrentTab, getDefaultOptionsForType } = usePollForm();
   const [ratingScale, setRatingScale] = useState<[number, number]>([1, 5]);
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
 
-  // Get all handler functions from our utility component
+  // Get all handler functions from our utility hook
   const {
     handleMoveToNextTab,
     handleAddOptionWrapper,
@@ -25,7 +25,7 @@ const BasicInfoForm: React.FC = () => {
     handlePollTypeChange,
     toggleCorrectAnswer,
     handleRatingScaleChange
-  } = PollFormHandlers({
+  } = usePollFormHandlers({
     formData,
     setFormData,
     setCurrentTab,
