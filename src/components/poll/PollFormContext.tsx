@@ -20,6 +20,7 @@ export const PollFormProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     title: "",
     description: "",
     options: ["", ""],
+    optionImages: ["", ""],
     type: "multiple-choice",
     endDate: undefined,
     settings: {

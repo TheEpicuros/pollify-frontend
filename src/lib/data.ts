@@ -1,4 +1,4 @@
-import { Poll, PollFormData } from './types';
+import { Poll, PollFormData, PollOption } from './types';
 
 export const mockPolls: Poll[] = [
   {
@@ -106,15 +106,25 @@ export const voteOnPoll = (pollId: string, optionId: string): boolean => {
 export const createPoll = (formData: PollFormData): Poll => {
   const newId = (mockPolls.length + 1).toString();
   
+  const options: PollOption[] = formData.options.map((text, index) => {
+    const option: PollOption = {
+      id: `${newId}-${index + 1}`,
+      text,
+      votes: 0
+    };
+    
+    if (formData.type === 'image-based' && formData.optionImages && formData.optionImages[index]) {
+      option.imageUrl = formData.optionImages[index];
+    }
+    
+    return option;
+  });
+  
   const newPoll: Poll = {
     id: newId,
     title: formData.title,
     description: formData.description || '',
-    options: formData.options.map((text, index) => ({
-      id: `${newId}-${index + 1}`,
-      text,
-      votes: 0
-    })),
+    options,
     createdAt: new Date().toISOString(),
     createdBy: 'Current User',
     status: 'active',

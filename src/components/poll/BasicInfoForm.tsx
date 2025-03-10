@@ -1,20 +1,33 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import PollOptionsSection from "./PollOptionsSection";
 import { usePollForm } from "./PollFormContext";
 import { handleAddOption, handleRemoveOption, handleOptionChange } from "./PollFormUtils";
+import { toast } from "sonner";
 
 const BasicInfoForm: React.FC = () => {
   const { formData, setFormData, setCurrentTab } = usePollForm();
 
+  useEffect(() => {
+    // Initialize optionImages array if it doesn't exist
+    if (formData.type === "image-based" && !formData.optionImages) {
+      setFormData(prev => ({
+        ...prev,
+        optionImages: Array(prev.options.length).fill("")
+      }));
+    }
+  }, [formData.type, formData.optionImages, setFormData]);
+
   const moveToNextTab = () => {
     if (!formData.title.trim()) {
+      toast.error("Please enter a poll title");
       return;
     }
     
     if (formData.options.some(option => !option.trim())) {
+      toast.error("All options must have content");
       return;
     }
     
@@ -23,14 +36,52 @@ const BasicInfoForm: React.FC = () => {
 
   const handleAddOptionWrapper = () => {
     handleAddOption(formData, setFormData);
+    
+    // Add an empty image URL if we're in image-based poll mode
+    if (formData.type === "image-based" && formData.optionImages) {
+      setFormData(prev => ({
+        ...prev,
+        optionImages: [...prev.optionImages!, ""]
+      }));
+    }
   };
 
   const handleRemoveOptionWrapper = (index: number) => {
     handleRemoveOption(index, formData, setFormData);
+    
+    // Remove the image URL for this option if we're in image-based poll mode
+    if (formData.type === "image-based" && formData.optionImages) {
+      const newOptionImages = [...formData.optionImages];
+      newOptionImages.splice(index, 1);
+      setFormData(prev => ({
+        ...prev,
+        optionImages: newOptionImages
+      }));
+    }
   };
 
   const handleOptionChangeWrapper = (index: number, value: string) => {
     handleOptionChange(index, value, formData, setFormData);
+  };
+
+  const handleImageUpload = (index: number, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result && formData.optionImages) {
+        const newOptionImages = [...formData.optionImages];
+        newOptionImages[index] = e.target.result as string;
+        setFormData(prev => ({
+          ...prev,
+          optionImages: newOptionImages
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -71,7 +122,7 @@ const BasicInfoForm: React.FC = () => {
           Poll Type
         </label>
         <Select 
-          value={formData.type} 
+          value={formData.type || "multiple-choice"} 
           onValueChange={(value) => setFormData({ ...formData, type: value })}
         >
           <SelectTrigger id="pollType">
@@ -92,6 +143,9 @@ const BasicInfoForm: React.FC = () => {
         handleAddOption={handleAddOptionWrapper}
         handleRemoveOption={handleRemoveOptionWrapper}
         handleOptionChange={handleOptionChangeWrapper}
+        showImages={formData.type === "image-based"}
+        optionImages={formData.optionImages}
+        handleImageUpload={handleImageUpload}
       />
       
       <div className="flex justify-end pt-4">

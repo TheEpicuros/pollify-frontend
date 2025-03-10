@@ -9,6 +9,9 @@ interface PollOptionsSectionProps {
   handleAddOption: () => void;
   handleRemoveOption: (index: number) => void;
   handleOptionChange: (index: number, value: string) => void;
+  showImages?: boolean;
+  optionImages?: string[];
+  handleImageUpload?: (index: number, file: File) => void;
 }
 
 const PollOptionsSection = ({
@@ -16,6 +19,9 @@ const PollOptionsSection = ({
   handleAddOption,
   handleRemoveOption,
   handleOptionChange,
+  showImages = false,
+  optionImages = [],
+  handleImageUpload,
 }: PollOptionsSectionProps) => {
   return (
     <div className="space-y-3">
@@ -31,6 +37,8 @@ const PollOptionsSection = ({
               handleOptionChange={handleOptionChange}
               handleRemoveOption={handleRemoveOption}
               canRemove={options.length > 2}
+              imageUrl={showImages ? optionImages[index] : undefined}
+              onImageUpload={showImages ? handleImageUpload : undefined}
             />
           ))}
         </AnimatePresence>

@@ -2,17 +2,18 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { createPoll } from "@/lib/data";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PollFormProvider, usePollForm } from "./poll/PollFormContext";
 import BasicInfoForm from "./poll/BasicInfoForm";
 import SettingsForm from "./poll/SettingsForm";
 import { validatePollForm } from "./poll/PollFormUtils";
+import { useCreatePoll } from "@/hooks/use-polls";
 
 const PollFormContent = () => {
   const navigate = useNavigate();
   const { formData, setIsSubmitting, currentTab, setCurrentTab } = usePollForm();
+  const createPollMutation = useCreatePoll();
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
@@ -24,21 +25,16 @@ const PollFormContent = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        const newPoll = createPoll(formData);
-        
-        toast.success("Poll created successfully");
+    // Use the React Query mutation to create the poll
+    createPollMutation.mutate(formData, {
+      onSuccess: (newPoll) => {
         navigate(`/poll/${newPoll.id}`);
-      } catch (error) {
-        console.error("Error creating poll:", error);
-        toast.error("Failed to create poll. Please try again.");
-      } finally {
+      },
+      onSettled: () => {
         setIsSubmitting(false);
       }
-    }, 800);
-  }, [formData, navigate, setIsSubmitting]);
+    });
+  }, [formData, navigate, setIsSubmitting, createPollMutation]);
 
   return (
     <motion.div

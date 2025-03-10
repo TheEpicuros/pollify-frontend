@@ -31,6 +31,7 @@ export interface PollFormData {
   title: string;
   description?: string;
   options: string[];
+  optionImages?: string[];
   type?: string;
   endDate?: Date;
   settings?: PollSettings;
