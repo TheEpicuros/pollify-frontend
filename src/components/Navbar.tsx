@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, UserCircle } from "lucide-react";
 import AnimatedLogo from "./AnimatedLogo";
+import NotificationBell from "./notifications/NotificationBell";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -68,20 +69,28 @@ const Navbar = () => {
               )}
             </Link>
           ))}
+          
+          {/* Notification Bell */}
+          <div className="ml-2">
+            <NotificationBell />
+          </div>
         </nav>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="block md:hidden p-2 -mr-2 rounded-md hover:bg-secondary"
-          aria-label="Toggle menu"
-        >
-          {isMobileMenuOpen ? (
-            <X size={20} className="text-foreground" />
-          ) : (
-            <Menu size={20} className="text-foreground" />
-          )}
-        </button>
+        {/* Mobile Menu Toggle and Notification Bell */}
+        <div className="flex items-center gap-2 md:hidden">
+          <NotificationBell />
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-md hover:bg-secondary"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? (
+              <X size={20} className="text-foreground" />
+            ) : (
+              <Menu size={20} className="text-foreground" />
+            )}
+          </button>
+        </div>
 
         {/* Mobile Navigation */}
         <AnimatePresence>
