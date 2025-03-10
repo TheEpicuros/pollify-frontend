@@ -12,6 +12,7 @@ interface PollFormHandlersProps {
   getDefaultOptionsForType: (type: PollType) => string[];
 }
 
+// Changed from React.FC to a proper custom hook
 export const usePollFormHandlers = ({
   formData,
   setFormData,

@@ -15,12 +15,12 @@ const BasicInfoForm: React.FC = () => {
   const [ratingScale, setRatingScale] = useState<[number, number]>([1, 5]);
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
 
-  // Get all handler functions from our utility hook
+  // Get all handler functions from our utility hook - fixed usage of the hook
   const {
     handleMoveToNextTab,
     handleAddOptionWrapper,
-    handleRemoveOptionWrapper,
-    handleOptionChangeWrapper,
+    handleRemoveOption,
+    handleOptionChange,
     handleImageUpload,
     handlePollTypeChange,
     toggleCorrectAnswer,
@@ -33,6 +33,10 @@ const BasicInfoForm: React.FC = () => {
     setRatingScale,
     getDefaultOptionsForType
   });
+
+  // Fix handler names to match what's returned from the hook
+  const handleRemoveOptionWrapper = handleRemoveOption;
+  const handleOptionChangeWrapper = handleOptionChange;
 
   useEffect(() => {
     // Initialize optionImages array if it doesn't exist for image-based polls
