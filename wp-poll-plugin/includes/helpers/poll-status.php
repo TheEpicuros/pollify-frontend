@@ -10,17 +10,17 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Check if a poll has ended
+ * Wrapper function to maintain compatibility with the canonical function 
+ * in database/poll-status.php
+ * 
+ * @param int $poll_id Poll ID
+ * @return bool Whether the poll has ended
  */
 function pollify_has_poll_ended($poll_id) {
-    $end_date = get_post_meta($poll_id, '_poll_end_date', true);
-    
-    if (empty($end_date)) {
-        return false;
+    // Include the core utility function if not already included
+    if (!function_exists('pollify_has_poll_ended_db')) {
+        require_once plugin_dir_path(dirname(__FILE__)) . 'database/poll-status.php';
     }
     
-    $end_timestamp = strtotime($end_date);
-    $current_timestamp = current_time('timestamp');
-    
-    return $end_timestamp < $current_timestamp;
+    return pollify_has_poll_ended_db($poll_id);
 }

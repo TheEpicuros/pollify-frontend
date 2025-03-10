@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Poll taxonomies
@@ -144,12 +145,12 @@ function pollify_get_poll_type_options() {
 }
 
 /**
- * Get poll type name for a specific poll
+ * Get poll type name for a specific poll - renamed to avoid conflicts
  * 
  * @param int $poll_id Poll ID
  * @return string Poll type name
  */
-function pollify_get_poll_type_name($poll_id) {
+function pollify_get_poll_type_name_from_taxonomy($poll_id) {
     $terms = get_the_terms($poll_id, 'poll_type');
     
     if (!empty($terms) && !is_wp_error($terms)) {

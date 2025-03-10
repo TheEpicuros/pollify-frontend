@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Poll helper functions
@@ -6,22 +7,6 @@
 // Exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;
-}
-
-/**
- * Check if a poll has ended
- */
-function pollify_has_poll_ended($poll_id) {
-    $end_date = get_post_meta($poll_id, '_poll_end_date', true);
-    
-    if (empty($end_date)) {
-        return false; // No end date, poll is active
-    }
-    
-    $current_time = current_time('timestamp');
-    $end_timestamp = strtotime($end_date);
-    
-    return $current_time > $end_timestamp;
 }
 
 /**

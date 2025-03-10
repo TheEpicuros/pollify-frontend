@@ -40,9 +40,9 @@ function pollify_can_user_vote($poll_id) {
 }
 
 /**
- * Check if poll has ended
+ * Check if poll has ended - renamed to avoid conflicts
  */
-function pollify_has_poll_ended($poll_id) {
+function pollify_has_poll_ended_db($poll_id) {
     $end_date = get_post_meta($poll_id, '_poll_end_date', true);
     
     if (empty($end_date)) {

@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Poll header rendering functions
@@ -42,28 +43,4 @@ function pollify_render_poll_header($poll_id, $poll, $total_votes, $poll_end_dat
     </div>
     <?php
     return ob_get_clean();
-}
-
-/**
- * Get poll type name from slug
- */
-function pollify_get_poll_type_name($poll_id) {
-    $poll_type = pollify_get_poll_type($poll_id);
-    
-    $poll_type_names = array(
-        'binary' => __('Yes/No', 'pollify'),
-        'multiple-choice' => __('Multiple Choice', 'pollify'),
-        'check-all' => __('Multiple Answers', 'pollify'),
-        'ranked-choice' => __('Ranked Choice', 'pollify'),
-        'rating-scale' => __('Rating Scale', 'pollify'),
-        'open-ended' => __('Open Response', 'pollify'),
-        'image-based' => __('Image Poll', 'pollify'),
-        'quiz' => __('Quiz', 'pollify'),
-        'opinion' => __('Opinion Poll', 'pollify'),
-        'straw' => __('Straw Poll', 'pollify'),
-        'interactive' => __('Interactive Poll', 'pollify'),
-        'referendum' => __('Referendum', 'pollify')
-    );
-    
-    return isset($poll_type_names[$poll_type]) ? $poll_type_names[$poll_type] : __('Poll', 'pollify');
 }
