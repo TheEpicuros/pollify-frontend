@@ -12,7 +12,7 @@ interface PollFormHandlersProps {
   getDefaultOptionsForType: (type: PollType) => string[];
 }
 
-// Changed from React.FC to a proper custom hook
+// Custom hook that returns poll form handler functions
 export const usePollFormHandlers = ({
   formData,
   setFormData,
@@ -41,7 +41,7 @@ export const usePollFormHandlers = ({
     setCurrentTab("settings");
   };
 
-  const handleAddOptionWrapper = () => {
+  const handleAddOption = () => {
     if (formData.options.length < 10) {
       setFormData(prev => ({
         ...prev,
@@ -60,7 +60,7 @@ export const usePollFormHandlers = ({
     }
   };
 
-  const handleRemoveOptionWrapper = (index: number) => {
+  const handleRemoveOption = (index: number) => {
     if (formData.options.length > 2) {
       const newOptions = [...formData.options];
       newOptions.splice(index, 1);
@@ -91,7 +91,7 @@ export const usePollFormHandlers = ({
     }
   };
 
-  const handleOptionChangeWrapper = (index: number, value: string) => {
+  const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...formData.options];
     newOptions[index] = value;
     setFormData({ ...formData, options: newOptions });
@@ -189,9 +189,9 @@ export const usePollFormHandlers = ({
 
   return {
     handleMoveToNextTab,
-    handleAddOptionWrapper,
-    handleRemoveOptionWrapper,
-    handleOptionChangeWrapper,
+    handleAddOption,
+    handleRemoveOption,
+    handleOptionChange,
     handleImageUpload,
     handlePollTypeChange,
     toggleCorrectAnswer,

@@ -15,10 +15,10 @@ const BasicInfoForm: React.FC = () => {
   const [ratingScale, setRatingScale] = useState<[number, number]>([1, 5]);
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
 
-  // Get all handler functions from our utility hook - fixed usage of the hook
+  // Get all handler functions from our utility hook
   const {
     handleMoveToNextTab,
-    handleAddOptionWrapper,
+    handleAddOption,
     handleRemoveOption,
     handleOptionChange,
     handleImageUpload,
@@ -34,7 +34,8 @@ const BasicInfoForm: React.FC = () => {
     getDefaultOptionsForType
   });
 
-  // Fix handler names to match what's returned from the hook
+  // Create wrapper functions with the old names for compatibility with other components
+  const handleAddOptionWrapper = handleAddOption;
   const handleRemoveOptionWrapper = handleRemoveOption;
   const handleOptionChangeWrapper = handleOptionChange;
 
