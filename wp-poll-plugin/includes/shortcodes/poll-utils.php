@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Utility functions for poll shortcodes
@@ -26,7 +25,7 @@ function pollify_get_user_ip() {
 /**
  * Generate poll results HTML based on display type
  */
-function pollify_get_results_html($poll_id, $options, $vote_counts, $total_votes, $display_type = 'bar', $user_vote = null) {
+function pollify_get_results_html($poll_id, $options, $vote_counts, $total_votes, $display_type = 'bar', $user_vote = null, $poll_type = 'multiple-choice') {
     ob_start();
     
     // Calculate percentages
@@ -46,7 +45,6 @@ function pollify_get_results_html($poll_id, $options, $vote_counts, $total_votes
     }
     
     // Check if this is an image-based poll
-    $poll_type = pollify_get_poll_type($poll_id);
     $option_images = array();
     if ($poll_type === 'image-based') {
         $option_images = get_post_meta($poll_id, '_poll_option_images', true);
@@ -55,143 +53,338 @@ function pollify_get_results_html($poll_id, $options, $vote_counts, $total_votes
     // Determine chart colors
     $colors = array('#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6', '#f43f5e', '#84cc16');
     
-    switch ($display_type) {
-        case 'pie':
-        case 'donut':
-            // Output data for chart.js
-            $chart_data = array(
-                'labels' => array(),
-                'datasets' => array(
-                    array(
-                        'data' => array(),
-                        'backgroundColor' => array(),
-                    )
-                )
-            );
-            
-            foreach ($sorted_option_ids as $i => $option_id) {
-                if (isset($options[$option_id])) {
-                    $vote_count = isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0;
-                    $chart_data['labels'][] = $options[$option_id];
-                    $chart_data['datasets'][0]['data'][] = $vote_count;
-                    $chart_data['datasets'][0]['backgroundColor'][] = $colors[$i % count($colors)];
-                }
-            }
-            
-            $chart_id = 'pollify-chart-' . $poll_id;
-            ?>
-            <div class="pollify-poll-results pollify-poll-results-chart">
-                <canvas id="<?php echo esc_attr($chart_id); ?>" width="400" height="300"></canvas>
-                
-                <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    var ctx = document.getElementById('<?php echo esc_js($chart_id); ?>').getContext('2d');
-                    var chart = new Chart(ctx, {
-                        type: '<?php echo esc_js($display_type); ?>',
-                        data: <?php echo json_encode($chart_data); ?>,
-                        options: {
-                            responsive: true,
-                            <?php if ($display_type === 'donut') : ?>
-                            cutout: '50%',
-                            <?php endif; ?>
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                }
-                            }
-                        }
-                    });
-                });
-                </script>
-                
-                <div class="pollify-poll-total">
-                    <?php echo sprintf(_n('Total: %s vote', 'Total: %s votes', $total_votes, 'pollify'), number_format_i18n($total_votes)); ?>
-                </div>
-            </div>
-            <?php
+    // Special handling for different poll types
+    switch ($poll_type) {
+        case 'open-ended':
+            echo pollify_render_open_ended_results($poll_id, $options, $vote_counts);
             break;
             
-        case 'text':
-            ?>
-            <div class="pollify-poll-results pollify-poll-results-text">
-                <ul class="pollify-poll-text-results">
-                    <?php foreach ($sorted_option_ids as $option_id) : 
-                        if (isset($options[$option_id])) :
-                            $vote_count = isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0;
-                            $percentage = $percentages[$option_id];
-                            $is_user_vote = ($user_vote && $user_vote->option_id == $option_id);
-                    ?>
-                    <li class="pollify-poll-text-result <?php echo $is_user_vote ? 'pollify-user-vote' : ''; ?>">
-                        <?php echo esc_html($options[$option_id]); ?>: 
-                        <strong><?php echo $vote_count; ?></strong> 
-                        (<?php echo $percentage; ?>%)
-                        <?php if ($is_user_vote) : ?>
-                        <span class="pollify-your-vote"><?php _e('Your vote', 'pollify'); ?></span>
-                        <?php endif; ?>
-                    </li>
-                    <?php 
-                        endif;
-                    endforeach; 
-                    ?>
-                </ul>
-                
-                <div class="pollify-poll-total">
-                    <?php echo sprintf(_n('Total: %s vote', 'Total: %s votes', $total_votes, 'pollify'), number_format_i18n($total_votes)); ?>
-                </div>
-            </div>
-            <?php
+        case 'ranked-choice':
+            echo pollify_render_ranked_choice_results($poll_id, $options, $vote_counts);
             break;
             
-        case 'bar':
+        case 'rating-scale':
+            // For rating scale, we'll show the average rating prominently
+            echo pollify_render_rating_scale_results($poll_id, $options, $vote_counts, $total_votes);
+            break;
+            
         default:
-            ?>
-            <div class="pollify-poll-results">
-                <?php foreach ($sorted_option_ids as $option_id) : 
-                    if (isset($options[$option_id])) :
-                        $vote_count = isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0;
-                        $percentage = $percentages[$option_id];
-                        $is_user_vote = ($user_vote && $user_vote->option_id == $option_id);
-                ?>
-                <div class="pollify-poll-result <?php echo $is_user_vote ? 'pollify-user-vote' : ''; ?>">
-                    <div class="pollify-poll-option-text">
-                        <?php if ($poll_type === 'image-based' && !empty($option_images[$option_id])) : 
-                            $image_url = wp_get_attachment_image_url($option_images[$option_id], 'thumbnail');
-                            if ($image_url) :
-                        ?>
-                        <div class="pollify-poll-option-image">
-                            <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($options[$option_id]); ?>">
+            // For other poll types, use the standard display types
+            switch ($display_type) {
+                case 'pie':
+                case 'donut':
+                    // Output data for chart.js
+                    $chart_data = array(
+                        'labels' => array(),
+                        'datasets' => array(
+                            array(
+                                'data' => array(),
+                                'backgroundColor' => array(),
+                            )
+                        )
+                    );
+                    
+                    foreach ($sorted_option_ids as $i => $option_id) {
+                        if (isset($options[$option_id])) {
+                            $vote_count = isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0;
+                            $chart_data['labels'][] = $options[$option_id];
+                            $chart_data['datasets'][0]['data'][] = $vote_count;
+                            $chart_data['datasets'][0]['backgroundColor'][] = $colors[$i % count($colors)];
+                        }
+                    }
+                    
+                    $chart_id = 'pollify-chart-' . $poll_id;
+                    ?>
+                    <div class="pollify-poll-results pollify-poll-results-chart">
+                        <canvas id="<?php echo esc_attr($chart_id); ?>" width="400" height="300"></canvas>
+                        
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var ctx = document.getElementById('<?php echo esc_js($chart_id); ?>').getContext('2d');
+                            var chart = new Chart(ctx, {
+                                type: '<?php echo esc_js($display_type); ?>',
+                                data: <?php echo json_encode($chart_data); ?>,
+                                options: {
+                                    responsive: true,
+                                    <?php if ($display_type === 'donut') : ?>
+                                    cutout: '50%',
+                                    <?php endif; ?>
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom',
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                        </script>
+                        
+                        <div class="pollify-poll-total">
+                            <?php echo sprintf(_n('Total: %s vote', 'Total: %s votes', $total_votes, 'pollify'), number_format_i18n($total_votes)); ?>
                         </div>
-                        <?php endif; endif; ?>
+                    </div>
+                    <?php
+                    break;
+                    
+                case 'text':
+                    ?>
+                    <div class="pollify-poll-results pollify-poll-results-text">
+                        <ol class="pollify-poll-results-list">
+                            <?php foreach ($sorted_option_ids as $option_id) : ?>
+                                <?php if (isset($options[$option_id])) : ?>
+                                    <?php 
+                                    $vote_count = isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0;
+                                    $percentage = isset($percentages[$option_id]) ? $percentages[$option_id] : 0;
+                                    $user_selected = isset($user_vote->option_id) && $user_vote->option_id == $option_id;
+                                    ?>
+                                    <li class="pollify-poll-result<?php echo $user_selected ? ' pollify-user-voted' : ''; ?>">
+                                        <div class="pollify-poll-option-text">
+                                            <?php if ($poll_type === 'image-based' && isset($option_images[$option_id])) : ?>
+                                                <div class="pollify-result-image">
+                                                    <img src="<?php echo esc_url(wp_get_attachment_image_url($option_images[$option_id], 'thumbnail')); ?>" alt="<?php echo esc_attr($options[$option_id]); ?>">
+                                                </div>
+                                            <?php endif; ?>
+                                            <span class="pollify-option-text-value">
+                                                <?php echo esc_html($options[$option_id]); ?>
+                                                <?php if ($user_selected) : ?>
+                                                    <span class="pollify-your-vote"><?php _e('(your vote)', 'pollify'); ?></span>
+                                                <?php endif; ?>
+                                            </span>
+                                            <span class="pollify-poll-option-count">
+                                                <?php echo $percentage; ?>% (<?php echo number_format_i18n($vote_count); ?>)
+                                            </span>
+                                        </div>
+                                    </li>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </ol>
                         
-                        <span class="pollify-poll-option-label">
-                            <?php echo esc_html($options[$option_id]); ?>
-                        </span>
-                        
-                        <span class="pollify-poll-option-count">
-                            <?php echo $vote_count; ?> <?php echo _n('vote', 'votes', $vote_count, 'pollify'); ?> (<?php echo $percentage; ?>%)
-                            
-                            <?php if ($is_user_vote) : ?>
-                            <span class="pollify-your-vote"><?php _e('Your vote', 'pollify'); ?></span>
+                        <div class="pollify-poll-total">
+                            <?php echo sprintf(_n('Total: %s vote', 'Total: %s votes', $total_votes, 'pollify'), number_format_i18n($total_votes)); ?>
+                        </div>
+                    </div>
+                    <?php
+                    break;
+                    
+                case 'bar':
+                default:
+                    ?>
+                    <div class="pollify-poll-results">
+                        <?php foreach ($sorted_option_ids as $option_id) : ?>
+                            <?php if (isset($options[$option_id])) : ?>
+                                <?php 
+                                $vote_count = isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0;
+                                $percentage = isset($percentages[$option_id]) ? $percentages[$option_id] : 0;
+                                $user_selected = isset($user_vote->option_id) && $user_vote->option_id == $option_id;
+                                ?>
+                                <div class="pollify-poll-result<?php echo $user_selected ? ' pollify-user-voted' : ''; ?>">
+                                    <div class="pollify-poll-option-text">
+                                        <?php if ($poll_type === 'image-based' && isset($option_images[$option_id])) : ?>
+                                            <div class="pollify-result-image">
+                                                <img src="<?php echo esc_url(wp_get_attachment_image_url($option_images[$option_id], 'thumbnail')); ?>" alt="<?php echo esc_attr($options[$option_id]); ?>">
+                                            </div>
+                                        <?php endif; ?>
+                                        <span class="pollify-option-text-value">
+                                            <?php echo esc_html($options[$option_id]); ?>
+                                            <?php if ($user_selected) : ?>
+                                                <span class="pollify-your-vote"><?php _e('(your vote)', 'pollify'); ?></span>
+                                            <?php endif; ?>
+                                        </span>
+                                        <span class="pollify-poll-option-count">
+                                            <?php echo $percentage; ?>%
+                                        </span>
+                                    </div>
+                                    <div class="pollify-poll-option-bar">
+                                        <div class="pollify-poll-option-bar-fill <?php echo $user_selected ? 'pollify-progress-animated' : ''; ?>" style="width: <?php echo $percentage; ?>%"></div>
+                                    </div>
+                                    <div class="pollify-poll-option-vote-count">
+                                        <?php echo number_format_i18n($vote_count); ?> <?php echo _n('vote', 'votes', $vote_count, 'pollify'); ?>
+                                    </div>
+                                </div>
                             <?php endif; ?>
-                        </span>
+                        <?php endforeach; ?>
+                        
+                        <div class="pollify-poll-total">
+                            <?php echo sprintf(_n('Total: %s vote', 'Total: %s votes', $total_votes, 'pollify'), number_format_i18n($total_votes)); ?>
+                        </div>
                     </div>
-                    <div class="pollify-poll-option-bar">
-                        <div class="pollify-poll-option-bar-fill" style="width: <?php echo $percentage; ?>%"></div>
-                    </div>
-                </div>
-                <?php 
-                    endif;
-                endforeach; 
-                ?>
-                
-                <div class="pollify-poll-total">
-                    <?php echo sprintf(_n('Total: %s vote', 'Total: %s votes', $total_votes, 'pollify'), number_format_i18n($total_votes)); ?>
-                </div>
-            </div>
-            <?php
-            break;
+                    <?php
+                    break;
+            }
     }
     
+    return ob_get_clean();
+}
+
+/**
+ * Render open-ended results
+ */
+function pollify_render_open_ended_results($poll_id, $options, $vote_counts) {
+    global $wpdb;
+    
+    // Get open-ended responses
+    $table_name = $wpdb->prefix . 'pollify_open_responses';
+    
+    $responses = $wpdb->get_results($wpdb->prepare(
+        "SELECT response, DATE_FORMAT(voted_at, '%%M %%d, %%Y') as formatted_date FROM $table_name WHERE poll_id = %d ORDER BY voted_at DESC LIMIT 50",
+        $poll_id
+    ));
+    
+    ob_start();
+    ?>
+    <div class="pollify-open-ended-results">
+        <h3 class="pollify-responses-title"><?php _e('Responses', 'pollify'); ?></h3>
+        
+        <?php if (empty($responses)) : ?>
+            <p class="pollify-no-responses"><?php _e('No responses yet.', 'pollify'); ?></p>
+        <?php else : ?>
+            <div class="pollify-responses-list">
+                <?php foreach ($responses as $response) : ?>
+                    <div class="pollify-response-item">
+                        <div class="pollify-response-content"><?php echo wpautop(esc_html($response->response)); ?></div>
+                        <div class="pollify-response-date"><?php echo esc_html($response->formatted_date); ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        
+        <div class="pollify-poll-total">
+            <?php echo sprintf(_n('Total: %s response', 'Total: %s responses', count($responses), 'pollify'), count($responses)); ?>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render ranked choice results
+ */
+function pollify_render_ranked_choice_results($poll_id, $options, $vote_counts) {
+    global $wpdb;
+    
+    // Get ranked choices
+    $table_name = $wpdb->prefix . 'pollify_ranked_votes';
+    
+    $rankings = $wpdb->get_results($wpdb->prepare(
+        "SELECT option_id, rank, COUNT(*) as count FROM $table_name WHERE poll_id = %d GROUP BY option_id, rank ORDER BY rank",
+        $poll_id
+    ));
+    
+    // Organize data by rank
+    $ranks = array();
+    $max_count = 0;
+    
+    foreach ($rankings as $ranking) {
+        if (!isset($ranks[$ranking->rank])) {
+            $ranks[$ranking->rank] = array();
+        }
+        $ranks[$ranking->rank][$ranking->option_id] = $ranking->count;
+        $max_count = max($max_count, $ranking->count);
+    }
+    
+    ob_start();
+    ?>
+    <div class="pollify-ranked-choice-results">
+        <h3 class="pollify-rankings-title"><?php _e('Rankings', 'pollify'); ?></h3>
+        
+        <?php if (empty($ranks)) : ?>
+            <p class="pollify-no-rankings"><?php _e('No rankings yet.', 'pollify'); ?></p>
+        <?php else : ?>
+            <div class="pollify-rankings-table-container">
+                <table class="pollify-rankings-table">
+                    <thead>
+                        <tr>
+                            <th class="pollify-rank-header"><?php _e('Rank', 'pollify'); ?></th>
+                            <?php foreach ($options as $option_id => $option_text) : ?>
+                                <th class="pollify-option-header"><?php echo esc_html($option_text); ?></th>
+                            <?php endforeach; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php for ($rank = 1; $rank <= count($options); $rank++) : ?>
+                            <tr>
+                                <td class="pollify-rank-cell"><?php echo $rank; ?></td>
+                                <?php foreach ($options as $option_id => $option_text) : ?>
+                                    <td class="pollify-count-cell">
+                                        <?php if (isset($ranks[$rank][$option_id])) : ?>
+                                            <div class="pollify-count-bar-container">
+                                                <div class="pollify-count-bar" style="width: <?php echo ($ranks[$rank][$option_id] / $max_count) * 100; ?>%"></div>
+                                                <span class="pollify-count-value"><?php echo $ranks[$rank][$option_id]; ?></span>
+                                            </div>
+                                        <?php else : ?>
+                                            <span class="pollify-count-zero">0</span>
+                                        <?php endif; ?>
+                                    </td>
+                                <?php endforeach; ?>
+                            </tr>
+                        <?php endfor; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+        
+        <div class="pollify-poll-total">
+            <?php 
+            $total_voters = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(DISTINCT user_id) FROM $table_name WHERE poll_id = %d",
+                $poll_id
+            ));
+            echo sprintf(_n('Total: %s voter', 'Total: %s voters', $total_voters, 'pollify'), $total_voters); 
+            ?>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render rating scale results
+ */
+function pollify_render_rating_scale_results($poll_id, $options, $vote_counts, $total_votes) {
+    // Calculate average rating
+    $total_rating = 0;
+    $total_votes_counted = 0;
+    
+    foreach ($options as $option_id => $option_text) {
+        $rating_value = intval($option_text);
+        if ($rating_value > 0) {
+            $vote_count = isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0;
+            $total_rating += $rating_value * $vote_count;
+            $total_votes_counted += $vote_count;
+        }
+    }
+    
+    $average_rating = $total_votes_counted > 0 ? round($total_rating / $total_votes_counted, 1) : 0;
+    
+    ob_start();
+    ?>
+    <div class="pollify-rating-scale-results">
+        <div class="pollify-average-rating">
+            <div class="pollify-average-rating-value"><?php echo $average_rating; ?></div>
+            <div class="pollify-average-rating-label"><?php _e('Average Rating', 'pollify'); ?></div>
+        </div>
+        
+        <div class="pollify-rating-distribution">
+            <?php foreach ($options as $option_id => $option_text) : ?>
+                <?php 
+                $vote_count = isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0;
+                $percentage = $total_votes > 0 ? round(($vote_count / $total_votes) * 100) : 0;
+                ?>
+                <div class="pollify-rating-bar-container">
+                    <div class="pollify-rating-label"><?php echo esc_html($option_text); ?></div>
+                    <div class="pollify-rating-bar">
+                        <div class="pollify-rating-bar-fill" style="width: <?php echo $percentage; ?>%"></div>
+                    </div>
+                    <div class="pollify-rating-count"><?php echo $vote_count; ?></div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="pollify-poll-total">
+            <?php echo sprintf(_n('Total: %s vote', 'Total: %s votes', $total_votes, 'pollify'), number_format_i18n($total_votes)); ?>
+        </div>
+    </div>
+    <?php
     return ob_get_clean();
 }
 

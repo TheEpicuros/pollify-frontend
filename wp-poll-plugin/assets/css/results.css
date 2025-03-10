@@ -53,3 +53,240 @@
     font-size: 0.875rem;
     color: #6b7280;
 }
+
+/* User vote indicator */
+.pollify-your-vote {
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.pollify-user-voted .pollify-poll-option-bar-fill {
+    background-color: #3b82f6;
+}
+
+/* Poll result images */
+.pollify-result-image {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    margin-right: 0.75rem;
+}
+
+.pollify-result-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Quiz results */
+.pollify-quiz-results {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.pollify-quiz-correct {
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid #10b981;
+}
+
+.pollify-quiz-incorrect {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+}
+
+.pollify-quiz-correct-message,
+.pollify-quiz-incorrect-message {
+    display: flex;
+    align-items: center;
+}
+
+.pollify-quiz-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    margin-right: 0.75rem;
+}
+
+.pollify-quiz-correct-icon {
+    background-color: #10b981;
+    color: white;
+}
+
+.pollify-quiz-incorrect-icon {
+    background-color: #ef4444;
+    color: white;
+}
+
+.pollify-quiz-correct-answer {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Open-ended results */
+.pollify-open-ended-results {
+    margin-top: 1rem;
+}
+
+.pollify-responses-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.pollify-responses-list {
+    margin-bottom: 1rem;
+}
+
+.pollify-response-item {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #f9fafb;
+}
+
+.pollify-response-content {
+    margin-bottom: 0.5rem;
+}
+
+.pollify-response-date {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: right;
+}
+
+/* Ranked choice results */
+.pollify-ranked-choice-results {
+    margin-top: 1rem;
+}
+
+.pollify-rankings-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.pollify-rankings-table-container {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+.pollify-rankings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pollify-rankings-table th,
+.pollify-rankings-table td {
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.pollify-rankings-table th {
+    background-color: #f3f4f6;
+    font-weight: 600;
+}
+
+.pollify-rank-header {
+    width: 60px;
+}
+
+.pollify-rank-cell {
+    font-weight: 600;
+    background-color: #f9fafb;
+}
+
+.pollify-count-bar-container {
+    position: relative;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pollify-count-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: rgba(59, 130, 246, 0.2);
+    z-index: 1;
+}
+
+.pollify-count-value {
+    position: relative;
+    z-index: 2;
+    font-weight: 500;
+}
+
+.pollify-count-zero {
+    color: #9ca3af;
+}
+
+/* Rating scale results */
+.pollify-rating-scale-results {
+    margin-top: 1rem;
+}
+
+.pollify-average-rating {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.pollify-average-rating-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #3b82f6;
+}
+
+.pollify-average-rating-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.pollify-rating-distribution {
+    margin-bottom: 1rem;
+}
+
+.pollify-rating-bar-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.pollify-rating-label {
+    width: 2rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.pollify-rating-bar {
+    flex-grow: 1;
+    height: 0.5rem;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    margin: 0 0.75rem;
+    overflow: hidden;
+}
+
+.pollify-rating-bar-fill {
+    height: 100%;
+    background-color: #3b82f6;
+    border-radius: 9999px;
+}
+
+.pollify-rating-count {
+    width: 2rem;
+    text-align: right;
+    font-size: 0.75rem;
+    color: #6b7280;
+}

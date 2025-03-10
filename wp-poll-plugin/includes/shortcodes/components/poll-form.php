@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Poll form rendering functions
@@ -38,6 +37,26 @@ function pollify_render_poll_form($poll_id, $poll, $options, $poll_type, $show_v
                     
                 case 'rating-scale':
                     echo pollify_render_rating_options($poll_id, $options);
+                    break;
+                
+                case 'ranked-choice':
+                    echo pollify_render_ranked_options($poll_id, $options);
+                    break;
+                
+                case 'open-ended':
+                    echo pollify_render_open_ended_options($poll_id, $options);
+                    break;
+                
+                case 'quiz':
+                    echo pollify_render_quiz_options($poll_id, $options);
+                    break;
+
+                case 'opinion':
+                case 'straw':
+                case 'interactive':
+                case 'referendum':
+                    // These types use the standard multiple choice UI
+                    echo pollify_render_radio_options($poll_id, $options);
                     break;
                     
                 case 'multiple-choice':
@@ -246,6 +265,135 @@ function pollify_render_rating_options($poll_id, $options) {
     </div>
     <?php
     return ob_get_clean();
+}
+
+/**
+ * Render ranked-choice options
+ */
+function pollify_render_ranked_options($poll_id, $options) {
+    ob_start();
+    ?>
+    <div class="pollify-poll-options-ranked">
+        <p class="pollify-ranked-instructions"><?php _e('Drag options to rank them in your preferred order.', 'pollify'); ?></p>
+        <ul class="pollify-ranked-list" id="pollify-ranked-list-<?php echo esc_attr($poll_id); ?>">
+            <?php foreach ($options as $option_id => $option_text) : ?>
+            <li class="pollify-ranked-item" data-option-id="<?php echo esc_attr($option_id); ?>">
+                <div class="pollify-ranked-handle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 6H16M8 12H16M8 18H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="pollify-ranked-text"><?php echo esc_html($option_text); ?></div>
+                <input type="hidden" name="ranked_options[]" value="<?php echo esc_attr($option_id); ?>">
+            </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Simple drag and drop functionality
+        const list = document.getElementById('pollify-ranked-list-<?php echo esc_js($poll_id); ?>');
+        let draggedItem = null;
+        
+        const items = list.querySelectorAll('.pollify-ranked-item');
+        items.forEach(item => {
+            item.addEventListener('dragstart', function() {
+                draggedItem = item;
+                setTimeout(function() {
+                    item.style.display = 'none';
+                }, 0);
+            });
+            
+            item.addEventListener('dragend', function() {
+                setTimeout(function() {
+                    draggedItem.style.display = 'flex';
+                    draggedItem = null;
+                }, 0);
+            });
+            
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+            
+            item.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                this.style.borderTop = '2px solid #3b82f6';
+            });
+            
+            item.addEventListener('dragleave', function() {
+                this.style.borderTop = '1px solid transparent';
+            });
+            
+            item.addEventListener('drop', function() {
+                this.style.borderTop = '1px solid transparent';
+                if (draggedItem !== this) {
+                    let children = Array.from(list.children);
+                    let draggedPos = children.indexOf(draggedItem);
+                    let targetPos = children.indexOf(this);
+                    
+                    if (draggedPos < targetPos) {
+                        list.insertBefore(draggedItem, this.nextSibling);
+                    } else {
+                        list.insertBefore(draggedItem, this);
+                    }
+                    
+                    // Update hidden inputs to reflect new order
+                    const updatedItems = list.querySelectorAll('.pollify-ranked-item');
+                    updatedItems.forEach((item, index) => {
+                        const input = item.querySelector('input[name="ranked_options[]"]');
+                        input.value = item.dataset.optionId;
+                    });
+                }
+            });
+            
+            // Make items draggable
+            item.setAttribute('draggable', true);
+        });
+    });
+    </script>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render open-ended options
+ */
+function pollify_render_open_ended_options($poll_id, $options) {
+    ob_start();
+    ?>
+    <div class="pollify-poll-options-open-ended">
+        <div class="pollify-poll-option">
+            <label for="pollify-open-response-<?php echo esc_attr($poll_id); ?>" class="pollify-option-label">
+                <?php 
+                // Use the first option text as the prompt, or fallback to default
+                $prompt = !empty($options) && is_array($options) && count($options) > 0 
+                    ? reset($options) 
+                    : __('Enter your response', 'pollify');
+                ?>
+                <span class="pollify-option-text"><?php echo esc_html($prompt); ?></span>
+            </label>
+            <textarea 
+                id="pollify-open-response-<?php echo esc_attr($poll_id); ?>" 
+                name="open_response" 
+                class="pollify-open-response-input" 
+                rows="4" 
+                placeholder="<?php esc_attr_e('Type your answer here...', 'pollify'); ?>" 
+                required
+            ></textarea>
+            <input type="hidden" name="option_id" value="open_response">
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render quiz options
+ */
+function pollify_render_quiz_options($poll_id, $options) {
+    // For front-end, quiz options look like regular radio buttons
+    // The correct answer is only revealed after voting
+    return pollify_render_radio_options($poll_id, $options);
 }
 
 /**

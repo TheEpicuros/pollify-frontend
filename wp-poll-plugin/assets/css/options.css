@@ -22,7 +22,8 @@
     background-color: #f3f4f6;
 }
 
-.pollify-poll-option input[type="radio"] {
+.pollify-poll-option input[type="radio"],
+.pollify-poll-option input[type="checkbox"] {
     margin-right: 0.75rem;
 }
 
@@ -49,4 +50,222 @@
 .pollify-poll-vote-button:disabled {
     background-color: #93c5fd;
     cursor: not-allowed;
+}
+
+/* Binary poll type styling */
+.pollify-poll-options-binary {
+    display: flex;
+    gap: 1rem;
+}
+
+.pollify-poll-option-yes label,
+.pollify-poll-option-no label {
+    justify-content: center;
+    padding: 1rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.pollify-poll-option-yes label {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+}
+
+.pollify-poll-option-no label {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+}
+
+.pollify-poll-option-yes label:hover {
+    background-color: rgba(16, 185, 129, 0.2);
+}
+
+.pollify-poll-option-no label:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Image poll type styling */
+.pollify-poll-options-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.pollify-poll-option-image label {
+    flex-direction: column;
+    text-align: center;
+    height: 100%;
+}
+
+.pollify-option-image {
+    margin-bottom: 0.5rem;
+    width: 100%;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.pollify-option-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Rating scale styling */
+.pollify-poll-options-rating {
+    margin: 1rem 0;
+}
+
+.pollify-rating-scale {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pollify-rating-label {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin: 0 1rem;
+}
+
+.pollify-rating-options {
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+
+.pollify-rating-option {
+    text-align: center;
+}
+
+.pollify-rating-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.pollify-rating-value input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.pollify-rating-value span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    background-color: #f3f4f6;
+    border: 2px solid transparent;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.pollify-rating-value:hover span {
+    background-color: #e5e7eb;
+}
+
+.pollify-rating-value input:checked + span {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+/* Ranked choice styling */
+.pollify-poll-options-ranked {
+    margin: 1rem 0;
+}
+
+.pollify-ranked-instructions {
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.pollify-ranked-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pollify-ranked-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    cursor: move;
+}
+
+.pollify-ranked-handle {
+    margin-right: 0.75rem;
+    color: #9ca3af;
+}
+
+.pollify-ranked-text {
+    flex-grow: 1;
+}
+
+/* Open-ended response styling */
+.pollify-poll-options-open-ended {
+    margin: 1rem 0;
+}
+
+.pollify-open-response-input {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    resize: vertical;
+    min-height: 6rem;
+}
+
+.pollify-open-response-input:focus {
+    outline: none;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Loading indicator */
+.pollify-loading-indicator {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pollify-loader {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: pollify-spinner 1s linear infinite;
+    margin-bottom: 0.5rem;
+}
+
+@keyframes pollify-spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.pollify-loading-text {
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+/* Quiz styling */
+.pollify-poll-type-quiz .pollify-poll-option label {
+    border-width: 2px;
+}
+
+.pollify-poll-type-quiz .pollify-poll-option label:hover {
+    border-color: #93c5fd;
 }
