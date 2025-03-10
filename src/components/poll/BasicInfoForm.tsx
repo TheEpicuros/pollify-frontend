@@ -6,6 +6,7 @@ import PollOptionsSection from "./PollOptionsSection";
 import { usePollForm } from "./PollFormContext";
 import { handleAddOption, handleRemoveOption, handleOptionChange } from "./PollFormUtils";
 import { toast } from "sonner";
+import { PollType } from "@/lib/types";
 
 const BasicInfoForm: React.FC = () => {
   const { formData, setFormData, setCurrentTab } = usePollForm();
@@ -84,6 +85,11 @@ const BasicInfoForm: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  const handlePollTypeChange = (value: string) => {
+    // Cast the string value to PollType to ensure type safety
+    setFormData({ ...formData, type: value as PollType });
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -123,7 +129,7 @@ const BasicInfoForm: React.FC = () => {
         </label>
         <Select 
           value={formData.type || "multiple-choice"} 
-          onValueChange={(value) => setFormData({ ...formData, type: value })}
+          onValueChange={handlePollTypeChange}
         >
           <SelectTrigger id="pollType">
             <SelectValue placeholder="Select poll type" />
