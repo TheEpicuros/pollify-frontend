@@ -17,10 +17,58 @@ if (!defined('ABSPATH')) {
  */
 function pollify_get_user_ip() {
     // Include the core utility function if not already included
-    if (!function_exists('pollify_get_user_ip')) {
+    if (!function_exists('pollify_core_get_user_ip')) {
         require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/formatting.php';
     }
     
     // Call the core function
-    return pollify_get_user_ip();
+    return pollify_core_get_user_ip();
+}
+
+/**
+ * Check if a user has already voted on a poll based on IP
+ *
+ * @param int $poll_id The poll ID
+ * @return bool True if user has voted, false otherwise
+ */
+function pollify_has_user_voted_by_ip($poll_id) {
+    // Get user IP
+    $user_ip = pollify_get_user_ip();
+    
+    // Get vote records for this poll
+    $votes = get_post_meta($poll_id, '_poll_votes_ip', true);
+    
+    if (!is_array($votes)) {
+        $votes = array();
+    }
+    
+    // Check if the user's IP exists in the vote records
+    return in_array($user_ip, $votes);
+}
+
+/**
+ * Record user vote by IP
+ * 
+ * @param int $poll_id The poll ID
+ * @return bool True if recorded successfully, false otherwise
+ */
+function pollify_record_vote_by_ip($poll_id) {
+    // Get user IP
+    $user_ip = pollify_get_user_ip();
+    
+    // Get existing vote records
+    $votes = get_post_meta($poll_id, '_poll_votes_ip', true);
+    
+    if (!is_array($votes)) {
+        $votes = array();
+    }
+    
+    // Add the user's IP to the vote records if not already present
+    if (!in_array($user_ip, $votes)) {
+        $votes[] = $user_ip;
+        update_post_meta($poll_id, '_poll_votes_ip', $votes);
+        return true;
+    }
+    
+    return false;
 }

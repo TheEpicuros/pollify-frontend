@@ -32,6 +32,17 @@ function pollify_ajax_create_poll() {
     $title = isset($_POST['poll_title']) ? sanitize_text_field($_POST['poll_title']) : '';
     $description = isset($_POST['poll_description']) ? sanitize_textarea_field($_POST['poll_description']) : '';
     $options = isset($_POST['poll_options']) && is_array($_POST['poll_options']) ? array_map('sanitize_text_field', $_POST['poll_options']) : array();
+    $poll_type = isset($_POST['poll_type']) ? sanitize_text_field($_POST['poll_type']) : 'multiple-choice';
+    $end_date = isset($_POST['poll_end_date']) ? sanitize_text_field($_POST['poll_end_date']) : '';
+    $show_results = isset($_POST['poll_show_results']) ? (bool)$_POST['poll_show_results'] : false;
+    $results_display = isset($_POST['poll_results_display']) ? sanitize_text_field($_POST['poll_results_display']) : 'bar';
+    $allow_comments = isset($_POST['poll_allow_comments']) ? (bool)$_POST['poll_allow_comments'] : true;
+    
+    // For image-based polls
+    $option_images = isset($_POST['poll_option_images']) && is_array($_POST['poll_option_images']) ? $_POST['poll_option_images'] : array();
+    
+    // For quiz polls
+    $correct_answers = isset($_POST['poll_correct_answers']) && is_array($_POST['poll_correct_answers']) ? array_map('sanitize_text_field', $_POST['poll_correct_answers']) : array();
     
     // Validate data
     if (empty($title)) {
@@ -41,7 +52,8 @@ function pollify_ajax_create_poll() {
     // Remove empty options
     $options = array_filter($options);
     
-    if (count($options) < 2) {
+    // Different validation based on poll type
+    if ($poll_type !== 'open-ended' && count($options) < 2) {
         wp_send_json_error(array('message' => 'At least two poll options are required.'));
     }
     
@@ -63,11 +75,39 @@ function pollify_ajax_create_poll() {
     // Save poll options
     update_post_meta($poll_id, '_poll_options', $options);
     
+    // Set the poll type
+    wp_set_object_terms($poll_id, $poll_type, 'poll_type');
+    update_post_meta($poll_id, '_poll_type', $poll_type);
+    
+    // Save poll settings
+    if (!empty($end_date)) {
+        update_post_meta($poll_id, '_poll_end_date', $end_date);
+    }
+    
+    update_post_meta($poll_id, '_poll_show_results', $show_results ? '1' : '0');
+    update_post_meta($poll_id, '_poll_results_display', $results_display);
+    update_post_meta($poll_id, '_poll_allow_comments', $allow_comments ? '1' : '0');
+    
+    // Save type-specific data
+    if ($poll_type === 'image-based' && !empty($option_images)) {
+        update_post_meta($poll_id, '_poll_option_images', $option_images);
+    } elseif ($poll_type === 'quiz' && !empty($correct_answers)) {
+        update_post_meta($poll_id, '_poll_correct_answers', $correct_answers);
+    } elseif ($poll_type === 'rating-scale') {
+        $min_rating = isset($_POST['poll_min_rating']) ? intval($_POST['poll_min_rating']) : 1;
+        $max_rating = isset($_POST['poll_max_rating']) ? intval($_POST['poll_max_rating']) : 5;
+        update_post_meta($poll_id, '_poll_rating_min', $min_rating);
+        update_post_meta($poll_id, '_poll_rating_max', $max_rating);
+    }
+    
+    // Generate shortcode for this poll
+    $shortcode = '[pollify id="' . $poll_id . '"]';
+    
     wp_send_json_success(array(
         'message' => 'Poll created successfully.',
         'pollId' => $poll_id,
-        'pollUrl' => get_permalink($poll_id)
+        'pollUrl' => get_permalink($poll_id),
+        'shortcode' => $shortcode
     ));
 }
 add_action('wp_ajax_pollify_create_poll', 'pollify_ajax_create_poll');
-
