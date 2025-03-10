@@ -14,3 +14,4 @@ if (!defined('ABSPATH')) {
 
 // Include the components main file which loads all component modules
 require_once plugin_dir_path(__FILE__) . 'components/main.php';
+
