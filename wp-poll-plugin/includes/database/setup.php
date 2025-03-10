@@ -20,7 +20,7 @@ function pollify_create_tables() {
     // Polls votes table
     $table_name = $wpdb->prefix . 'pollify_votes';
     
-    $sql = "CREATE TABLE $table_name (
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         poll_id bigint(20) unsigned NOT NULL,
         option_id varchar(255) NOT NULL,
@@ -36,7 +36,7 @@ function pollify_create_tables() {
     // Poll ratings table
     $ratings_table = $wpdb->prefix . 'pollify_ratings';
     
-    $sql_ratings = "CREATE TABLE $ratings_table (
+    $sql_ratings = "CREATE TABLE IF NOT EXISTS $ratings_table (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         poll_id bigint(20) unsigned NOT NULL,
         user_id bigint(20) unsigned DEFAULT NULL,
@@ -52,7 +52,7 @@ function pollify_create_tables() {
     // Poll comments table
     $comments_table = $wpdb->prefix . 'pollify_comments';
     
-    $sql_comments = "CREATE TABLE $comments_table (
+    $sql_comments = "CREATE TABLE IF NOT EXISTS $comments_table (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         poll_id bigint(20) unsigned NOT NULL,
         user_id bigint(20) unsigned DEFAULT NULL,
@@ -67,7 +67,7 @@ function pollify_create_tables() {
     // User activity tracking table
     $activity_table = $wpdb->prefix . 'pollify_user_activity';
     
-    $sql_activity = "CREATE TABLE $activity_table (
+    $sql_activity = "CREATE TABLE IF NOT EXISTS $activity_table (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         user_id bigint(20) unsigned NOT NULL,
         activity_type varchar(50) NOT NULL,

@@ -20,23 +20,25 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Define plugin constants first
+// Define plugin constants
 define('POLLIFY_VERSION', '1.0.0');
 define('POLLIFY_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('POLLIFY_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('POLLIFY_PLUGIN_FILE', __FILE__);
 define('POLLIFY_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
-// Include core files
+// Include core files and activation/deactivation functions
+require_once POLLIFY_PLUGIN_DIR . 'includes/core/activation.php';
+require_once POLLIFY_PLUGIN_DIR . 'includes/core/deactivation.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/core/utils.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/core/setup.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/database/main.php';
 
-// Plugin activation and deactivation
+// Plugin activation and deactivation hooks
 register_activation_hook(__FILE__, 'pollify_activate_plugin');
 register_deactivation_hook(__FILE__, 'pollify_deactivate_plugin');
 
-// Include admin files
+// Include admin files only in admin area
 if (is_admin()) {
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/admin-menu.php';
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/settings/main.php';
@@ -56,4 +58,3 @@ require_once POLLIFY_PLUGIN_DIR . 'includes/helpers.php';
 
 // Add plugin action links
 add_filter('plugin_action_links_' . POLLIFY_PLUGIN_BASENAME, 'pollify_add_settings_link');
-

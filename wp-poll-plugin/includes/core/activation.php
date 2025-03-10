@@ -14,47 +14,15 @@ if (!defined('ABSPATH')) {
  */
 function pollify_activate_plugin() {
     // Create custom database tables
-    pollify_create_tables();
-    
-    // Register post types
-    pollify_register_post_types();
-    
-    // Register taxonomies
-    pollify_register_taxonomies();
-    
-    // Create default poll types
-    pollify_create_default_poll_types();
-    
-    // Setup user role capabilities
-    pollify_setup_capabilities();
+    if (function_exists('pollify_create_tables')) {
+        pollify_create_tables();
+    }
     
     // Create default options
     pollify_create_default_options();
     
     // Flush rewrite rules
     flush_rewrite_rules();
-}
-
-/**
- * Create default poll types
- */
-function pollify_create_default_poll_types() {
-    $default_types = array(
-        'multiple-choice' => 'Multiple Choice',
-        'check-all' => 'Multiple Answers',
-        'binary' => 'Yes/No Question',
-        'rating-scale' => 'Rating Scale',
-        'image-based' => 'Image Poll',
-        'quiz' => 'Quiz',
-        'open-ended' => 'Open-Ended',
-        'ranked-choice' => 'Ranked Choice'
-    );
-    
-    foreach ($default_types as $slug => $name) {
-        if (!term_exists($slug, 'poll_type')) {
-            wp_insert_term($name, 'poll_type', array('slug' => $slug));
-        }
-    }
 }
 
 /**
