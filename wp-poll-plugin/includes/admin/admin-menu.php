@@ -107,7 +107,7 @@ function pollify_admin_menu() {
         __('Settings', 'pollify'),
         'manage_options',
         'pollify-settings',
-        'pollify_settings_page'
+        'pollify_settings_menu_callback'
     );
     
     // Add help page
@@ -169,6 +169,6 @@ function pollify_help_page() {
 /**
  * Settings page callback
  */
-function pollify_settings_page() {
+function pollify_settings_menu_callback() {
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/settings.php';
 }
