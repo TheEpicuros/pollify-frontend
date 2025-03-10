@@ -1,8 +1,8 @@
-
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import NotificationItem, { Notification } from "./NotificationItem";
+import NotificationItem from "./NotificationItem";
 import { Button } from "@/components/ui/button";
+import { Notification } from "@/lib/types";
 
 interface NotificationsDropdownProps {
   notifications: Notification[];
