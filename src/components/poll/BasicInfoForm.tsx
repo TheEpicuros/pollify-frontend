@@ -1,18 +1,15 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import PollOptionsSection from "./PollOptionsSection";
 import { usePollForm } from "./PollFormContext";
 import { handleAddOption, handleRemoveOption, handleOptionChange } from "./PollFormUtils";
 import { toast } from "sonner";
 import { PollType } from "@/lib/types";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { HelpCircle, Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+// Import refactored components
+import BasicPollFields from "./form-types/BasicPollFields";
+import PollTypeSelector from "./form-types/PollTypeSelector";
+import PollTypeContent from "./form-utils/PollTypeContent";
 
 const BasicInfoForm: React.FC = () => {
   const { formData, setFormData, setCurrentTab, getDefaultOptionsForType } = usePollForm();
@@ -185,240 +182,33 @@ const BasicInfoForm: React.FC = () => {
     }));
   };
 
-  const renderPollTypeOptions = () => {
-    const minOptionCount = formData.type === "binary" ? 2 : 
-                           formData.type === "open-ended" ? 1 : 2;
-    
-    const canRemoveOption = formData.options.length > minOptionCount;
-
-    switch (formData.type) {
-      case "binary":
-        return (
-          <div className="space-y-4 mt-4">
-            <div className="flex flex-col space-y-3">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="yes-option">Yes/Positive Option</Label>
-                  <Input 
-                    id="yes-option"
-                    value={formData.options[0]} 
-                    onChange={(e) => handleOptionChangeWrapper(0, e.target.value)}
-                    placeholder="Yes" 
-                    className="border-green-500 focus:ring-green-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="no-option">No/Negative Option</Label>
-                  <Input 
-                    id="no-option"
-                    value={formData.options[1]} 
-                    onChange={(e) => handleOptionChangeWrapper(1, e.target.value)}
-                    placeholder="No" 
-                    className="border-red-500 focus:ring-red-500"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      
-      case "rating-scale":
-        return (
-          <div className="space-y-4 mt-4">
-            <div className="flex flex-col space-y-3">
-              <Label className="flex items-center">
-                Rating Scale Range
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="ml-2 cursor-help">
-                        <HelpCircle size={14} className="text-muted-foreground" />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="w-[200px]">Set the minimum and maximum values for your rating scale</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </Label>
-              <div className="pt-4 pb-2 px-4">
-                <Slider 
-                  value={[ratingScale[0], ratingScale[1]]}
-                  min={1}
-                  max={10}
-                  step={1}
-                  onValueChange={handleRatingScaleChange}
-                />
-              </div>
-              <div className="flex justify-between text-sm text-muted-foreground px-2">
-                <span>Min: {ratingScale[0]}</span>
-                <span>Max: {ratingScale[1]}</span>
-              </div>
-            </div>
-            <div className="flex items-center space-y-0 space-x-2 mt-4">
-              <Label htmlFor="low-label">Low Label (Optional)</Label>
-              <Input 
-                id="low-label"
-                placeholder="Poor" 
-                className="max-w-[150px]"
-              />
-            </div>
-            <div className="flex items-center space-y-0 space-x-2">
-              <Label htmlFor="high-label">High Label (Optional)</Label>
-              <Input 
-                id="high-label"
-                placeholder="Excellent" 
-                className="max-w-[150px]"
-              />
-            </div>
-          </div>
-        );
-      
-      case "open-ended":
-        return (
-          <div className="space-y-4 mt-4">
-            <div className="p-4 bg-muted/50 rounded-lg">
-              <div className="flex items-start gap-3">
-                <Info size={18} className="text-primary mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium mb-1">Open-ended polls allow responders to provide their own text answers.</p>
-                  <p className="text-muted-foreground">You don't need to provide options for this poll type. Responders will see a text area to submit their answers.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      
-      case "quiz":
-        return (
-          <div className="space-y-4 mt-4">
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="show-correct-answers"
-                checked={showCorrectAnswers}
-                onCheckedChange={setShowCorrectAnswers}
-              />
-              <Label htmlFor="show-correct-answers" className="cursor-pointer">Mark correct answers</Label>
-            </div>
-            
-            {showCorrectAnswers && (
-              <div className="p-4 bg-muted/50 rounded-lg mb-4">
-                <div className="flex items-start gap-3">
-                  <Info size={18} className="text-primary mt-0.5" />
-                  <p className="text-sm">Select which options are correct answers for your quiz. You can select multiple correct answers.</p>
-                </div>
-              </div>
-            )}
-            
-            <PollOptionsSection
-              options={formData.options}
-              handleAddOption={handleAddOptionWrapper}
-              handleRemoveOption={handleRemoveOptionWrapper}
-              handleOptionChange={handleOptionChangeWrapper}
-              canRemoveOption={canRemoveOption}
-              showCorrectAnswers={showCorrectAnswers}
-              correctAnswers={formData.correctAnswers}
-              onToggleCorrectAnswer={toggleCorrectAnswer}
-            />
-          </div>
-        );
-      
-      case "image-based":
-        return (
-          <PollOptionsSection
-            options={formData.options}
-            handleAddOption={handleAddOptionWrapper}
-            handleRemoveOption={handleRemoveOptionWrapper}
-            handleOptionChange={handleOptionChangeWrapper}
-            canRemoveOption={canRemoveOption}
-            showImages={true}
-            optionImages={formData.optionImages}
-            handleImageUpload={handleImageUpload}
-          />
-        );
-      
-      default:
-        return (
-          <PollOptionsSection
-            options={formData.options}
-            handleAddOption={handleAddOptionWrapper}
-            handleRemoveOption={handleRemoveOptionWrapper}
-            handleOptionChange={handleOptionChangeWrapper}
-            canRemoveOption={canRemoveOption}
-          />
-        );
-    }
-  };
-
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <label htmlFor="title" className="block text-sm font-medium">
-          Poll Title <span className="text-destructive">*</span>
-        </label>
-        <input
-          id="title"
-          type="text"
-          className="w-full px-4 py-2 rounded-lg border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-          placeholder="Ask a question..."
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label htmlFor="description" className="block text-sm font-medium">
-          Description <span className="text-muted-foreground">(optional)</span>
-        </label>
-        <textarea
-          id="description"
-          rows={3}
-          className="w-full px-4 py-2 rounded-lg border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition resize-none"
-          placeholder="Add more context to your question..."
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-        />
-      </div>
+      <BasicPollFields
+        title={formData.title}
+        description={formData.description || ""}
+        onTitleChange={(value) => setFormData({ ...formData, title: value })}
+        onDescriptionChange={(value) => setFormData({ ...formData, description: value })}
+      />
       
-      <div className="space-y-2">
-        <label htmlFor="pollType" className="block text-sm font-medium">
-          Poll Type
-        </label>
-        <Select 
-          value={formData.type || "multiple-choice"} 
-          onValueChange={handlePollTypeChange}
-        >
-          <SelectTrigger id="pollType">
-            <SelectValue placeholder="Select poll type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="multiple-choice">Multiple Choice (Select One)</SelectItem>
-            <SelectItem value="check-all">Multiple Answers (Select Many)</SelectItem>
-            <SelectItem value="binary">Yes/No Question</SelectItem>
-            <SelectItem value="rating-scale">Rating Scale</SelectItem>
-            <SelectItem value="image-based">Image Based Poll</SelectItem>
-            <SelectItem value="quiz">Quiz</SelectItem>
-            <SelectItem value="open-ended">Open-Ended Response</SelectItem>
-            <SelectItem value="ranked-choice">Ranked Choice</SelectItem>
-          </SelectContent>
-        </Select>
-        
-        <div className="mt-1 text-sm text-muted-foreground">
-          {formData.type === "multiple-choice" && "Voters can select only one option."}
-          {formData.type === "check-all" && "Voters can select multiple options that apply."}
-          {formData.type === "binary" && "Simple yes/no or either/or questions."}
-          {formData.type === "rating-scale" && "Ask voters to rate on a numeric scale."}
-          {formData.type === "image-based" && "Use images as answer options."}
-          {formData.type === "quiz" && "Test knowledge with right/wrong answers."}
-          {formData.type === "open-ended" && "Allow voters to provide text responses."}
-          {formData.type === "ranked-choice" && "Voters rank options in order of preference."}
-        </div>
-      </div>
+      <PollTypeSelector 
+        pollType={formData.type || "multiple-choice"}
+        onPollTypeChange={handlePollTypeChange}
+      />
 
-      {renderPollTypeOptions()}
+      <PollTypeContent
+        formData={formData}
+        ratingScale={ratingScale}
+        setRatingScale={setRatingScale}
+        showCorrectAnswers={showCorrectAnswers}
+        setShowCorrectAnswers={setShowCorrectAnswers}
+        handleAddOption={handleAddOptionWrapper}
+        handleRemoveOption={handleRemoveOptionWrapper}
+        handleOptionChange={handleOptionChangeWrapper}
+        toggleCorrectAnswer={toggleCorrectAnswer}
+        handleRatingScaleChange={handleRatingScaleChange}
+        handleImageUpload={handleImageUpload}
+      />
       
       <div className="flex justify-end pt-4">
         <Button type="button" onClick={moveToNextTab}>
