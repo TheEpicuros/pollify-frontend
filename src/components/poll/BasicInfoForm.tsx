@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { usePollForm } from "./PollFormContext";
+import { usePollForm } from "./context";
 import { handleAddOption, handleRemoveOption, handleOptionChange } from "./PollFormUtils";
 import { toast } from "sonner";
 import { PollType } from "@/lib/types";

@@ -9,7 +9,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import PollSubmitButton from "./PollSubmitButton";
-import { usePollForm } from "./PollFormContext";
+import { usePollForm } from "./context";
 import { handleDateSelect } from "./PollFormUtils";
 
 const SettingsForm: React.FC = () => {

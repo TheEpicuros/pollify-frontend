@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { PollFormProvider, usePollForm } from "./poll/PollFormContext";
+import { PollFormProvider, usePollForm } from "./poll/context";
 import BasicInfoForm from "./poll/BasicInfoForm";
 import SettingsForm from "./poll/SettingsForm";
 import { validatePollForm } from "./poll/PollFormUtils";
