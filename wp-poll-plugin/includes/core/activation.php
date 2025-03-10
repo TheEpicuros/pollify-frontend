@@ -13,16 +13,37 @@ if (!defined('ABSPATH')) {
  * Activation hook
  */
 function pollify_activate_plugin() {
-    // Create custom database tables
-    if (function_exists('pollify_create_tables')) {
-        pollify_create_tables();
+    global $wpdb;
+    
+    // Enable error reporting during activation for debugging
+    $old_error_reporting = error_reporting(E_ALL);
+    $old_display_errors = ini_get('display_errors');
+    ini_set('display_errors', 1);
+    
+    try {
+        // Create custom database tables
+        if (function_exists('pollify_create_tables')) {
+            pollify_create_tables();
+        } else {
+            error_log('Pollify Error: pollify_create_tables function not found during activation');
+        }
+        
+        // Create default options
+        pollify_create_default_options();
+        
+        // Flush rewrite rules
+        flush_rewrite_rules();
+        
+        // Log successful activation
+        error_log('Pollify plugin activated successfully');
+    } catch (Exception $e) {
+        // Log any errors during activation
+        error_log('Pollify Activation Error: ' . $e->getMessage());
     }
     
-    // Create default options
-    pollify_create_default_options();
-    
-    // Flush rewrite rules
-    flush_rewrite_rules();
+    // Restore original error reporting settings
+    error_reporting($old_error_reporting);
+    ini_set('display_errors', $old_display_errors);
 }
 
 /**

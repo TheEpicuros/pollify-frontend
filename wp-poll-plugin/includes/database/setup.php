@@ -15,6 +15,9 @@ if (!defined('ABSPATH')) {
 function pollify_create_tables() {
     global $wpdb;
     
+    // Enable error reporting
+    $wpdb->show_errors();
+    
     $charset_collate = $wpdb->get_charset_collate();
     
     // Polls votes table
@@ -79,9 +82,29 @@ function pollify_create_tables() {
         KEY activity_type (activity_type)
     ) $charset_collate;";
     
-    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    dbDelta($sql);
-    dbDelta($sql_ratings);
-    dbDelta($sql_comments);
-    dbDelta($sql_activity);
+    // Use dbDelta to create or update tables
+    if (!function_exists('dbDelta')) {
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    }
+    
+    // Create tables one by one and check for errors
+    $result = dbDelta($sql);
+    if ($wpdb->last_error) {
+        error_log('Pollify Error creating votes table: ' . $wpdb->last_error);
+    }
+    
+    $result = dbDelta($sql_ratings);
+    if ($wpdb->last_error) {
+        error_log('Pollify Error creating ratings table: ' . $wpdb->last_error);
+    }
+    
+    $result = dbDelta($sql_comments);
+    if ($wpdb->last_error) {
+        error_log('Pollify Error creating comments table: ' . $wpdb->last_error);
+    }
+    
+    $result = dbDelta($sql_activity);
+    if ($wpdb->last_error) {
+        error_log('Pollify Error creating activity table: ' . $wpdb->last_error);
+    }
 }

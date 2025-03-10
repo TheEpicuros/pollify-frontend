@@ -27,12 +27,14 @@ define('POLLIFY_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('POLLIFY_PLUGIN_FILE', __FILE__);
 define('POLLIFY_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
+// Include database functions first to ensure they're available during activation
+require_once POLLIFY_PLUGIN_DIR . 'includes/database/main.php';
+
 // Include core files and activation/deactivation functions
 require_once POLLIFY_PLUGIN_DIR . 'includes/core/activation.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/core/deactivation.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/core/utils.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/core/setup.php';
-require_once POLLIFY_PLUGIN_DIR . 'includes/database/main.php';
 
 // Plugin activation and deactivation hooks
 register_activation_hook(__FILE__, 'pollify_activate_plugin');
