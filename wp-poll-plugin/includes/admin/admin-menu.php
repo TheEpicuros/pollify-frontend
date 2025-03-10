@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Admin menu registration
