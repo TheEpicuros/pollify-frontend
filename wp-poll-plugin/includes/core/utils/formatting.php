@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Formatting utility functions
