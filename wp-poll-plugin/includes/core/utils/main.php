@@ -19,3 +19,6 @@ require_once plugin_dir_path(__FILE__) . 'poll-data.php';
 require_once plugin_dir_path(__FILE__) . 'transients.php';
 require_once plugin_dir_path(__FILE__) . 'url-handling.php';
 require_once plugin_dir_path(__FILE__) . 'user-interactions.php';
+require_once plugin_dir_path(__FILE__) . 'date-formatting.php';
+require_once plugin_dir_path(__FILE__) . 'validation.php';
+require_once plugin_dir_path(__FILE__) . 'sanitization.php';
