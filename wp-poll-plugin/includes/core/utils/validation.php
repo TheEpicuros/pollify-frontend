@@ -54,3 +54,96 @@ function pollify_is_valid_date($date) {
     $d = DateTime::createFromFormat('Y-m-d', $date);
     return $d && $d->format('Y-m-d') === $date;
 }
+
+/**
+ * Validate poll option
+ * 
+ * @param string $option_id Option ID to validate
+ * @param int $poll_id Poll ID to check against
+ * @return bool True if valid, false otherwise
+ */
+function pollify_validate_poll_option($option_id, $poll_id) {
+    $options = get_post_meta($poll_id, '_poll_options', true);
+    
+    if (!is_array($options)) {
+        return false;
+    }
+    
+    return array_key_exists($option_id, $options);
+}
+
+/**
+ * Validate interactive poll inputs
+ * 
+ * @param array $input_data Input data to validate
+ * @param int $poll_id Poll ID to check against
+ * @return array|bool Sanitized input data or false if invalid
+ */
+function pollify_validate_interactive_input($input_data, $poll_id) {
+    if (!is_array($input_data) || empty($input_data)) {
+        return false;
+    }
+    
+    $poll_type = pollify_get_poll_type($poll_id);
+    if ($poll_type !== 'interactive') {
+        return false;
+    }
+    
+    $sanitized_data = array();
+    
+    foreach ($input_data as $key => $value) {
+        // Sanitize keys and values
+        $sanitized_key = sanitize_text_field($key);
+        
+        if (is_array($value)) {
+            $sanitized_value = array_map('sanitize_text_field', $value);
+        } else {
+            $sanitized_value = sanitize_text_field($value);
+        }
+        
+        $sanitized_data[$sanitized_key] = $sanitized_value;
+    }
+    
+    return $sanitized_data;
+}
+
+/**
+ * Validate poll type
+ * 
+ * @param string $poll_type Poll type to validate
+ * @return bool True if valid, false otherwise
+ */
+function pollify_is_valid_poll_type($poll_type) {
+    $valid_types = array(
+        'multiple-choice',
+        'binary',
+        'check-all',
+        'ranked-choice',
+        'rating-scale',
+        'open-ended',
+        'image-based',
+        'quiz',
+        'opinion',
+        'straw',
+        'interactive',
+        'referendum'
+    );
+    
+    return in_array($poll_type, $valid_types);
+}
+
+/**
+ * Check if a poll exists and is valid
+ * 
+ * @param int $poll_id Poll ID to check
+ * @return bool True if valid, false otherwise
+ */
+function pollify_is_valid_poll($poll_id) {
+    $poll = get_post($poll_id);
+    
+    if (!$poll || $poll->post_type !== 'poll') {
+        return false;
+    }
+    
+    return true;
+}

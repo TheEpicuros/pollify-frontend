@@ -51,9 +51,12 @@ function pollify_render_poll_form($poll_id, $poll, $options, $poll_type, $show_v
                     echo pollify_render_quiz_options($poll_id, $options);
                     break;
 
+                case 'interactive':
+                    echo pollify_render_interactive_options($poll_id, $options);
+                    break;
+
                 case 'opinion':
                 case 'straw':
-                case 'interactive':
                 case 'referendum':
                     // These types use the standard multiple choice UI
                     echo pollify_render_radio_options($poll_id, $options);
@@ -394,6 +397,343 @@ function pollify_render_quiz_options($poll_id, $options) {
     // For front-end, quiz options look like regular radio buttons
     // The correct answer is only revealed after voting
     return pollify_render_radio_options($poll_id, $options);
+}
+
+/**
+ * Render interactive poll options
+ */
+function pollify_render_interactive_options($poll_id, $options) {
+    // Get interactive poll settings
+    $interactive_settings = get_post_meta($poll_id, '_poll_interactive_settings', true);
+    $interaction_type = isset($interactive_settings['interaction_type']) ? $interactive_settings['interaction_type'] : 'slider';
+    
+    ob_start();
+    ?>
+    <div class="pollify-poll-options-interactive" data-interaction-type="<?php echo esc_attr($interaction_type); ?>">
+        <?php 
+        switch ($interaction_type) {
+            case 'slider':
+                echo pollify_render_interactive_slider($poll_id, $options, $interactive_settings);
+                break;
+                
+            case 'drag-drop':
+                echo pollify_render_interactive_drag_drop($poll_id, $options, $interactive_settings);
+                break;
+                
+            case 'map':
+                echo pollify_render_interactive_map($poll_id, $options, $interactive_settings);
+                break;
+                
+            case 'budget':
+                echo pollify_render_interactive_budget($poll_id, $options, $interactive_settings);
+                break;
+                
+            default:
+                echo pollify_render_interactive_slider($poll_id, $options, $interactive_settings);
+                break;
+        }
+        ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render interactive slider poll
+ */
+function pollify_render_interactive_slider($poll_id, $options, $settings) {
+    $min = isset($settings['min']) ? intval($settings['min']) : 0;
+    $max = isset($settings['max']) ? intval($settings['max']) : 100;
+    $step = isset($settings['step']) ? intval($settings['step']) : 1;
+    $default = isset($settings['default']) ? intval($settings['default']) : floor(($min + $max) / 2);
+    
+    $slider_id = 'pollify-slider-' . $poll_id;
+    
+    ob_start();
+    ?>
+    <div class="pollify-interactive-slider">
+        <div class="pollify-slider-container">
+            <div class="pollify-slider-labels">
+                <span class="pollify-slider-min"><?php echo esc_html($min); ?></span>
+                <span class="pollify-slider-max"><?php echo esc_html($max); ?></span>
+            </div>
+            <input 
+                type="range" 
+                id="<?php echo esc_attr($slider_id); ?>" 
+                name="interactive_value" 
+                min="<?php echo esc_attr($min); ?>" 
+                max="<?php echo esc_attr($max); ?>" 
+                step="<?php echo esc_attr($step); ?>" 
+                value="<?php echo esc_attr($default); ?>" 
+                class="pollify-slider"
+            >
+            <div class="pollify-slider-value">
+                <span id="<?php echo esc_attr($slider_id); ?>-value"><?php echo esc_html($default); ?></span>
+            </div>
+        </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var slider = document.getElementById('<?php echo esc_js($slider_id); ?>');
+            var output = document.getElementById('<?php echo esc_js($slider_id); ?>-value');
+            
+            output.innerHTML = slider.value;
+            
+            slider.oninput = function() {
+                output.innerHTML = this.value;
+            }
+        });
+        </script>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render interactive drag and drop poll
+ */
+function pollify_render_interactive_drag_drop($poll_id, $options, $settings) {
+    $container_id = 'pollify-drag-drop-' . $poll_id;
+    
+    ob_start();
+    ?>
+    <div class="pollify-interactive-drag-drop" id="<?php echo esc_attr($container_id); ?>">
+        <div class="pollify-drag-items">
+            <?php foreach ($options as $option_id => $option_text) : ?>
+            <div class="pollify-drag-item" draggable="true" data-option-id="<?php echo esc_attr($option_id); ?>">
+                <?php echo esc_html($option_text); ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="pollify-drop-zones">
+            <?php 
+            $zones = isset($settings['zones']) ? $settings['zones'] : array('Zone 1', 'Zone 2');
+            foreach ($zones as $zone_id => $zone_name) : 
+            ?>
+            <div class="pollify-drop-zone" data-zone-id="<?php echo esc_attr($zone_id); ?>">
+                <h4><?php echo esc_html($zone_name); ?></h4>
+                <div class="pollify-drop-zone-items"></div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <input type="hidden" name="interactive_value" id="<?php echo esc_attr($container_id); ?>-value">
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var container = document.getElementById('<?php echo esc_js($container_id); ?>');
+            var items = container.querySelectorAll('.pollify-drag-item');
+            var zones = container.querySelectorAll('.pollify-drop-zone');
+            var valueInput = document.getElementById('<?php echo esc_js($container_id); ?>-value');
+            
+            // Initialize drag and drop functionality
+            items.forEach(function(item) {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', item.dataset.optionId);
+                    setTimeout(function() {
+                        item.classList.add('dragging');
+                    }, 0);
+                });
+                
+                item.addEventListener('dragend', function() {
+                    item.classList.remove('dragging');
+                    updateValue();
+                });
+            });
+            
+            zones.forEach(function(zone) {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    zone.classList.add('drag-over');
+                });
+                
+                zone.addEventListener('dragleave', function() {
+                    zone.classList.remove('drag-over');
+                });
+                
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    
+                    var optionId = e.dataTransfer.getData('text/plain');
+                    var item = container.querySelector('.pollify-drag-item[data-option-id="' + optionId + '"]');
+                    
+                    if (item) {
+                        var itemsContainer = zone.querySelector('.pollify-drop-zone-items');
+                        itemsContainer.appendChild(item);
+                    }
+                    
+                    updateValue();
+                });
+            });
+            
+            function updateValue() {
+                var result = {};
+                
+                zones.forEach(function(zone) {
+                    var zoneId = zone.dataset.zoneId;
+                    var zoneItems = zone.querySelectorAll('.pollify-drag-item');
+                    
+                    result[zoneId] = [];
+                    zoneItems.forEach(function(item) {
+                        result[zoneId].push(item.dataset.optionId);
+                    });
+                });
+                
+                valueInput.value = JSON.stringify(result);
+            }
+        });
+        </script>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render interactive map poll
+ */
+function pollify_render_interactive_map($poll_id, $options, $settings) {
+    $map_id = 'pollify-map-' . $poll_id;
+    $map_type = isset($settings['map_type']) ? $settings['map_type'] : 'world';
+    
+    ob_start();
+    ?>
+    <div class="pollify-interactive-map">
+        <div id="<?php echo esc_attr($map_id); ?>" class="pollify-map-container" data-map-type="<?php echo esc_attr($map_type); ?>">
+            <div class="pollify-map-loading"><?php _e('Loading map...', 'pollify'); ?></div>
+        </div>
+        
+        <input type="hidden" name="interactive_value" id="<?php echo esc_attr($map_id); ?>-value">
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // This would be implemented with a mapping library like Leaflet or Google Maps
+            var mapContainer = document.getElementById('<?php echo esc_js($map_id); ?>');
+            var valueInput = document.getElementById('<?php echo esc_js($map_id); ?>-value');
+            
+            // Placeholder for map implementation
+            mapContainer.innerHTML = '<div class="pollify-map-placeholder"><?php _e('Interactive map would be displayed here', 'pollify'); ?></div>';
+            valueInput.value = JSON.stringify({selected: "none"});
+            
+            // In a real implementation, we would initialize the map here
+            // and set up event listeners to update the value input
+        });
+        </script>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render interactive budget allocation poll
+ */
+function pollify_render_interactive_budget($poll_id, $options, $settings) {
+    $budget_id = 'pollify-budget-' . $poll_id;
+    $total_budget = isset($settings['total_budget']) ? intval($settings['total_budget']) : 100;
+    $min_allocation = isset($settings['min_allocation']) ? intval($settings['min_allocation']) : 0;
+    $max_allocation = isset($settings['max_allocation']) ? intval($settings['max_allocation']) : $total_budget;
+    
+    ob_start();
+    ?>
+    <div class="pollify-interactive-budget" id="<?php echo esc_attr($budget_id); ?>">
+        <div class="pollify-budget-info">
+            <div class="pollify-budget-total">
+                <?php printf(__('Total Budget: %s', 'pollify'), '<span class="pollify-budget-amount">' . esc_html($total_budget) . '</span>'); ?>
+            </div>
+            <div class="pollify-budget-remaining">
+                <?php printf(__('Remaining: %s', 'pollify'), '<span id="' . esc_attr($budget_id) . '-remaining">' . esc_html($total_budget) . '</span>'); ?>
+            </div>
+        </div>
+        
+        <div class="pollify-budget-options">
+            <?php foreach ($options as $option_id => $option_text) : ?>
+            <div class="pollify-budget-option">
+                <label for="<?php echo esc_attr($budget_id . '-option-' . $option_id); ?>" class="pollify-budget-label">
+                    <?php echo esc_html($option_text); ?>
+                </label>
+                <div class="pollify-budget-controls">
+                    <input 
+                        type="number" 
+                        id="<?php echo esc_attr($budget_id . '-option-' . $option_id); ?>" 
+                        name="budget_allocation[<?php echo esc_attr($option_id); ?>]" 
+                        min="<?php echo esc_attr($min_allocation); ?>" 
+                        max="<?php echo esc_attr($max_allocation); ?>" 
+                        value="0" 
+                        class="pollify-budget-input" 
+                        data-option-id="<?php echo esc_attr($option_id); ?>"
+                    >
+                    <div class="pollify-budget-slider-container">
+                        <input 
+                            type="range" 
+                            min="<?php echo esc_attr($min_allocation); ?>" 
+                            max="<?php echo esc_attr($max_allocation); ?>" 
+                            value="0" 
+                            class="pollify-budget-slider" 
+                            data-option-id="<?php echo esc_attr($option_id); ?>"
+                        >
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <input type="hidden" name="interactive_value" id="<?php echo esc_attr($budget_id); ?>-value">
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var container = document.getElementById('<?php echo esc_js($budget_id); ?>');
+            var inputs = container.querySelectorAll('.pollify-budget-input');
+            var sliders = container.querySelectorAll('.pollify-budget-slider');
+            var remainingEl = document.getElementById('<?php echo esc_js($budget_id); ?>-remaining');
+            var valueInput = document.getElementById('<?php echo esc_js($budget_id); ?>-value');
+            var totalBudget = <?php echo esc_js($total_budget); ?>;
+            
+            // Initialize budget functionality
+            function updateBudget() {
+                var totalAllocated = 0;
+                var allocations = {};
+                
+                inputs.forEach(function(input) {
+                    var value = parseInt(input.value, 10) || 0;
+                    totalAllocated += value;
+                    allocations[input.dataset.optionId] = value;
+                });
+                
+                var remaining = totalBudget - totalAllocated;
+                remainingEl.textContent = remaining;
+                
+                if (remaining < 0) {
+                    remainingEl.classList.add('pollify-budget-overallocated');
+                } else {
+                    remainingEl.classList.remove('pollify-budget-overallocated');
+                }
+                
+                valueInput.value = JSON.stringify(allocations);
+            }
+            
+            inputs.forEach(function(input, index) {
+                input.addEventListener('input', function() {
+                    var value = parseInt(input.value, 10) || 0;
+                    sliders[index].value = value;
+                    updateBudget();
+                });
+            });
+            
+            sliders.forEach(function(slider, index) {
+                slider.addEventListener('input', function() {
+                    var value = slider.value;
+                    inputs[index].value = value;
+                    updateBudget();
+                });
+            });
+            
+            // Initialize
+            updateBudget();
+        });
+        </script>
+    </div>
+    <?php
+    return ob_get_clean();
 }
 
 /**

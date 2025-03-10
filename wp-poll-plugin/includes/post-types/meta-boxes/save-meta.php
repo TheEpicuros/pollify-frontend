@@ -61,6 +61,53 @@ function pollify_save_poll_meta($post_id, $post) {
             update_post_meta($post_id, '_poll_option_images', $images);
         }
         
+        // For interactive polls, save the settings
+        if ($poll_type === 'interactive' && isset($_POST['_poll_interactive_settings'])) {
+            $interactive_settings = array();
+            
+            // Sanitize interaction type
+            if (isset($_POST['_poll_interactive_settings']['interaction_type'])) {
+                $interactive_settings['interaction_type'] = sanitize_text_field($_POST['_poll_interactive_settings']['interaction_type']);
+            }
+            
+            // Sanitize slider settings
+            if (isset($_POST['_poll_interactive_settings']['min'])) {
+                $interactive_settings['min'] = intval($_POST['_poll_interactive_settings']['min']);
+            }
+            
+            if (isset($_POST['_poll_interactive_settings']['max'])) {
+                $interactive_settings['max'] = intval($_POST['_poll_interactive_settings']['max']);
+            }
+            
+            if (isset($_POST['_poll_interactive_settings']['step'])) {
+                $interactive_settings['step'] = intval($_POST['_poll_interactive_settings']['step']);
+            }
+            
+            if (isset($_POST['_poll_interactive_settings']['default'])) {
+                $interactive_settings['default'] = intval($_POST['_poll_interactive_settings']['default']);
+            }
+            
+            // Sanitize budget settings
+            if (isset($_POST['_poll_interactive_settings']['total_budget'])) {
+                $interactive_settings['total_budget'] = intval($_POST['_poll_interactive_settings']['total_budget']);
+            }
+            
+            if (isset($_POST['_poll_interactive_settings']['min_allocation'])) {
+                $interactive_settings['min_allocation'] = intval($_POST['_poll_interactive_settings']['min_allocation']);
+            }
+            
+            if (isset($_POST['_poll_interactive_settings']['max_allocation'])) {
+                $interactive_settings['max_allocation'] = intval($_POST['_poll_interactive_settings']['max_allocation']);
+            }
+            
+            // Sanitize map settings
+            if (isset($_POST['_poll_interactive_settings']['map_type'])) {
+                $interactive_settings['map_type'] = sanitize_text_field($_POST['_poll_interactive_settings']['map_type']);
+            }
+            
+            update_post_meta($post_id, '_poll_interactive_settings', $interactive_settings);
+        }
+        
         // For multi-stage polls, save the stages
         if ($poll_type === 'multi-stage' && isset($_POST['poll_stages'])) {
             $stages = array_map('sanitize_text_field', $_POST['poll_stages']);
