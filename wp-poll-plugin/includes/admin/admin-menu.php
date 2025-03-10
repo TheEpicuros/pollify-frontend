@@ -121,3 +121,10 @@ function pollify_user_activity_page() {
 function pollify_help_page() {
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/help.php';
 }
+
+/**
+ * Settings page callback
+ */
+function pollify_settings_page() {
+    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/settings.php';
+}
