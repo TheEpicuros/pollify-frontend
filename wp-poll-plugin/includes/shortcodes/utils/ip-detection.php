@@ -11,6 +11,9 @@ if (!defined('ABSPATH')) {
 
 /**
  * Get user IP address
+ * 
+ * This duplicates the function in helpers/formatting.php but is kept
+ * here to maintain backward compatibility and avoid circular dependencies.
  */
 function pollify_get_user_ip() {
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
