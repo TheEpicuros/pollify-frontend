@@ -12,7 +12,12 @@ if (!defined('ABSPATH')) {
 /**
  * Check if user can vote on a poll
  * 
- * Wrapper for the database function to maintain backwards compatibility
+ * NOTE: For new code, use pollify_user_can_vote() function from helpers/poll-status.php instead.
+ * This function is maintained for backward compatibility.
+ * 
+ * @deprecated Use pollify_user_can_vote() from helpers/poll-status.php instead
+ * @param int $poll_id Poll ID
+ * @return bool Whether the user can vote
  */
 function pollify_can_user_vote($poll_id) {
     // Check if poll has ended

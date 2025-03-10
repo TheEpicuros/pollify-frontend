@@ -38,10 +38,10 @@ function pollify_user_can_vote($poll_id) {
         return false;
     }
     
-    // Include the core functionality from the post-types helper
-    if (!function_exists('pollify_can_user_vote')) {
-        require_once plugin_dir_path(dirname(__FILE__)) . 'post-types/helpers.php';
+    // Include the core database function
+    if (!function_exists('pollify_can_user_vote_db')) {
+        require_once plugin_dir_path(dirname(__FILE__)) . 'database/poll-status.php';
     }
     
-    return pollify_can_user_vote($poll_id);
+    return pollify_can_user_vote_db($poll_id);
 }

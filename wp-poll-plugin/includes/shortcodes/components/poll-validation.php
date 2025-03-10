@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Poll validation functions
@@ -97,4 +96,3 @@ function pollify_get_voting_status($poll_id) {
         'has_ended' => $has_ended
     ];
 }
-

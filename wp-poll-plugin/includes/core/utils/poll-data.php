@@ -1,6 +1,7 @@
+
 <?php
 /**
- * Poll data retrieval utility functions
+ * Poll data utility functions
  */
 
 // Exit if accessed directly
@@ -9,65 +10,35 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Check if poll is valid
+ * Get poll by ID
  */
-function pollify_is_valid_poll($post_id) {
-    if (!$post_id) {
-        return false;
-    }
-    
-    $post = get_post($post_id);
-    
-    return $post && $post->post_type === 'poll';
+function pollify_get_poll($poll_id) {
+    return get_post($poll_id);
 }
 
 /**
  * Get poll type
- * 
- * @param int $poll_id Poll ID
- * @return string Poll type slug
  */
 function pollify_get_poll_type($poll_id) {
-    $terms = get_the_terms($poll_id, 'poll_type');
+    $poll_type = get_post_meta($poll_id, '_poll_type', true);
     
-    if (!empty($terms) && !is_wp_error($terms)) {
-        return $terms[0]->slug;
+    if (empty($poll_type)) {
+        return 'standard';
     }
     
-    return 'multiple-choice'; // Default type
+    return $poll_type;
 }
 
 /**
- * Get polls by popularity
+ * Check if user can vote on poll
+ * 
+ * This is a utility wrapper for the helper function
  */
-function pollify_get_popular_polls($limit = 5) {
-    global $wpdb;
-    $votes_table = $wpdb->prefix . 'pollify_votes';
+function pollify_check_user_can_vote($poll_id) {
+    // Include the helper function if not already included
+    if (!function_exists('pollify_user_can_vote')) {
+        require_once POLLIFY_PLUGIN_DIR . 'includes/helpers/poll-status.php';
+    }
     
-    $results = $wpdb->get_results(
-        $wpdb->prepare(
-            "SELECT p.ID, p.post_title, COUNT(v.id) as vote_count
-             FROM {$wpdb->posts} p
-             LEFT JOIN {$votes_table} v ON p.ID = v.poll_id
-             WHERE p.post_type = 'poll' AND p.post_status = 'publish'
-             GROUP BY p.ID
-             ORDER BY vote_count DESC
-             LIMIT %d",
-            $limit
-        )
-    );
-    
-    return $results;
-}
-
-/**
- * Get polls by user
- */
-function pollify_get_user_polls($user_id, $limit = 5) {
-    return get_posts(array(
-        'post_type' => 'poll',
-        'author' => $user_id,
-        'posts_per_page' => $limit,
-        'post_status' => 'publish',
-    ));
+    return pollify_user_can_vote($poll_id);
 }
