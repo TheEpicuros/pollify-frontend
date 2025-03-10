@@ -79,6 +79,36 @@ function pollify_save_poll_meta($post_id, $post) {
         $allowed_roles = array_map('sanitize_text_field', $_POST['_poll_allowed_roles']);
         update_post_meta($post_id, '_poll_allowed_roles', $allowed_roles);
     }
+    
+    // Save admin settings if the user has permission
+    if (current_user_can('manage_poll_settings')) {
+        // Featured poll
+        update_post_meta($post_id, '_poll_featured', isset($_POST['_poll_featured']) ? '1' : '0');
+        
+        // Private poll
+        update_post_meta($post_id, '_poll_is_private', isset($_POST['_poll_is_private']) ? '1' : '0');
+        
+        // Require login
+        update_post_meta($post_id, '_poll_require_login', isset($_POST['_poll_require_login']) ? '1' : '0');
+        
+        // Maximum votes
+        if (isset($_POST['_poll_max_votes'])) {
+            $max_votes = absint($_POST['_poll_max_votes']);
+            update_post_meta($post_id, '_poll_max_votes', $max_votes);
+        }
+        
+        // Notification email
+        if (isset($_POST['_poll_notification_email'])) {
+            $email = sanitize_email($_POST['_poll_notification_email']);
+            update_post_meta($post_id, '_poll_notification_email', $email);
+        }
+        
+        // Custom CSS
+        if (isset($_POST['_poll_custom_css'])) {
+            $custom_css = wp_strip_all_tags($_POST['_poll_custom_css']);
+            update_post_meta($post_id, '_poll_custom_css', $custom_css);
+        }
+    }
 }
 
 /**

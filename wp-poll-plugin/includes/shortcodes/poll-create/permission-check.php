@@ -24,7 +24,7 @@ function pollify_create_check_permissions() {
     }
     
     // Check if user has permission to create polls
-    if (!current_user_can('publish_posts')) {
+    if (!current_user_can('create_polls')) {
         return array(
             'can_create' => false,
             'message' => '<div class="pollify-error">' . __('You do not have permission to create polls.', 'pollify') . '</div>'
@@ -57,7 +57,7 @@ function pollify_create_get_poll_types() {
 }
 
 /**
- * Filter poll types based on shortcode attributes
+ * Filter poll types based on shortcode attributes and user permissions
  * 
  * @param array $available_types All available poll types
  * @param string $types_attr Comma-separated list of allowed types
@@ -65,6 +65,18 @@ function pollify_create_get_poll_types() {
  */
 function pollify_create_filter_poll_types($available_types, $types_attr) {
     if (empty($types_attr)) {
+        // If user is not an admin or editor, limit complex poll types
+        if (!current_user_can('edit_others_polls')) {
+            // Remove advanced poll types for regular users
+            unset($available_types['quiz']);
+            unset($available_types['ranked-choice']);
+            
+            // Only show image polls for users with upload permissions
+            if (!current_user_can('upload_files')) {
+                unset($available_types['image-based']);
+            }
+        }
+        
         return $available_types;
     }
     

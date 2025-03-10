@@ -30,6 +30,18 @@ function pollify_add_meta_boxes() {
         'side',
         'default'
     );
+    
+    // Add admin-only meta box if user has sufficient permissions
+    if (current_user_can('manage_poll_settings')) {
+        add_meta_box(
+            'pollify_admin_settings',
+            __('Admin Settings', 'pollify'),
+            'pollify_admin_settings_callback',
+            'poll',
+            'normal',
+            'low'
+        );
+    }
 }
 
 // Register the meta box callbacks with the save_post_poll action
