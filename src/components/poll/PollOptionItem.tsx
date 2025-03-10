@@ -1,7 +1,7 @@
 
 import { motion } from "framer-motion";
 import { Trash, ImagePlus } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 interface PollOptionItemProps {
   option: string;
@@ -23,11 +23,11 @@ const PollOptionItem = ({
   onImageUpload,
 }: PollOptionItemProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  const fileInputRef = useState<HTMLInputElement | null>(null)[1];
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageClick = () => {
-    if (fileInputRef) {
-      fileInputRef.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
@@ -103,7 +103,7 @@ const PollOptionItem = ({
           )}
           <input
             type="file"
-            ref={(ref) => fileInputRef = ref}
+            ref={fileInputRef}
             className="hidden"
             accept="image/*"
             onChange={handleFileChange}

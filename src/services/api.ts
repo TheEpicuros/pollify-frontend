@@ -43,7 +43,7 @@ export const fetchPolls = async (): Promise<Poll[]> => {
   } catch (error) {
     console.error("Error fetching polls:", error);
     // Return mocked data when API fails or during development
-    return import('./data').then(module => module.getAllPolls());
+    return import('@/lib/data').then(module => module.mockPolls);
   }
 };
 
@@ -61,7 +61,9 @@ export const fetchPoll = async (id: string): Promise<Poll | undefined> => {
   } catch (error) {
     console.error(`Error fetching poll ${id}:`, error);
     // Return mocked data when API fails or during development
-    return import('./data').then(module => module.getPoll(id));
+    return import('@/lib/data').then(module => {
+      return module.mockPolls.find(poll => poll.id === id);
+    });
   }
 };
 
@@ -101,8 +103,42 @@ export const createPollApi = async (formData: PollFormData): Promise<Poll> => {
     return formatPoll(data.poll);
   } catch (error) {
     console.error("Error creating poll:", error);
-    // Use mock function when API fails or during development
-    return import('./data').then(module => module.createPoll(formData));
+    // Mock function for development
+    const { mockPolls } = await import('@/lib/data');
+    
+    // Create a new poll with a unique ID
+    const newId = (mockPolls.length + 1).toString();
+    
+    const options: PollOption[] = formData.options.map((text, index) => {
+      const option: PollOption = {
+        id: `${newId}-${index + 1}`,
+        text,
+        votes: 0
+      };
+      
+      if (formData.type === 'image-based' && formData.optionImages && formData.optionImages[index]) {
+        option.imageUrl = formData.optionImages[index];
+      }
+      
+      return option;
+    });
+    
+    const newPoll: Poll = {
+      id: newId,
+      title: formData.title,
+      description: formData.description || '',
+      options,
+      createdAt: new Date().toISOString(),
+      createdBy: 'Current User',
+      status: 'active',
+      totalVotes: 0,
+      type: formData.type,
+      endDate: formData.endDate ? formData.endDate.toISOString() : undefined,
+      settings: formData.settings
+    };
+    
+    mockPolls.push(newPoll);
+    return newPoll;
   }
 };
 
@@ -124,7 +160,18 @@ export const voteOnPollApi = async (pollId: string, optionId: string): Promise<b
     return true;
   } catch (error) {
     console.error(`Error voting on poll ${pollId}:`, error);
-    // Use mock function when API fails or during development
-    return import('./data').then(module => module.voteOnPoll(pollId, optionId));
+    // Mock voting function for development
+    const { mockPolls } = await import('@/lib/data');
+    
+    const poll = mockPolls.find(p => p.id === pollId);
+    if (!poll) return false;
+    
+    const option = poll.options.find(o => o.id === optionId);
+    if (!option) return false;
+    
+    option.votes += 1;
+    poll.totalVotes += 1;
+    
+    return true;
   }
 };
