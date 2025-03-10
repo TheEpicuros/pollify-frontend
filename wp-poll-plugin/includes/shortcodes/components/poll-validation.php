@@ -8,6 +8,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include core validation functions
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/validation.php';
+
 /**
  * Validate that a poll exists and is publishable
  */

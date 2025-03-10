@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Input validation utility functions
@@ -132,19 +131,39 @@ function pollify_is_valid_poll_type($poll_type) {
     return in_array($poll_type, $valid_types);
 }
 
-/**
- * Check if a poll exists and is of valid type
- * 
- * @param int $poll_id Poll ID to check
- * @return bool True if valid, false otherwise
- */
-function pollify_validate_poll_exists($poll_id) {
-    $poll = get_post($poll_id);
-    
-    if (!$poll || $poll->post_type !== 'poll') {
-        return false;
+if (!function_exists('pollify_validate_poll_exists')) {
+    /**
+     * Validate that a poll exists and is publishable
+     */
+    function pollify_validate_poll_exists($poll_id) {
+        if (!$poll_id) {
+            return [
+                'valid' => false,
+                'message' => '<div class="pollify-error">' . __('Poll ID is required.', 'pollify') . '</div>'
+            ];
+        }
+        
+        $poll = get_post($poll_id);
+        
+        if (!$poll || $poll->post_type !== 'poll') {
+            return [
+                'valid' => false,
+                'message' => '<div class="pollify-error">' . __('Poll not found.', 'pollify') . '</div>'
+            ];
+        }
+        
+        // Check if poll is published
+        if ($poll->post_status !== 'publish' && !current_user_can('edit_post', $poll_id)) {
+            return [
+                'valid' => false,
+                'message' => '<div class="pollify-error">' . __('This poll is not published.', 'pollify') . '</div>'
+            ];
+        }
+        
+        return [
+            'valid' => true,
+            'poll' => $poll,
+            'message' => ''
+        ];
     }
-    
-    return true;
 }
-
