@@ -1,5 +1,4 @@
-
-import { Poll } from './types';
+import { Poll, PollFormData } from './types';
 
 export const mockPolls: Poll[] = [
   {
@@ -104,14 +103,14 @@ export const voteOnPoll = (pollId: string, optionId: string): boolean => {
   return true;
 };
 
-export const createPoll = (title: string, description: string, options: string[]): Poll => {
+export const createPoll = (formData: PollFormData): Poll => {
   const newId = (mockPolls.length + 1).toString();
   
   const newPoll: Poll = {
     id: newId,
-    title,
-    description,
-    options: options.map((text, index) => ({
+    title: formData.title,
+    description: formData.description || '',
+    options: formData.options.map((text, index) => ({
       id: `${newId}-${index + 1}`,
       text,
       votes: 0
@@ -119,7 +118,10 @@ export const createPoll = (title: string, description: string, options: string[]
     createdAt: new Date().toISOString(),
     createdBy: 'Current User',
     status: 'active',
-    totalVotes: 0
+    totalVotes: 0,
+    type: formData.type,
+    endDate: formData.endDate ? formData.endDate.toISOString() : undefined,
+    settings: formData.settings
   };
   
   mockPolls.push(newPoll);

@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -89,6 +90,7 @@ const PollForm = () => {
     // Simulate API call
     setTimeout(() => {
       try {
+        // Now we can pass the entire formData object as expected by our updated function
         const newPoll = createPoll(formData);
         
         toast.success("Poll created successfully");
