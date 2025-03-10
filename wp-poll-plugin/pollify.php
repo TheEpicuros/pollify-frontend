@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Plugin Name: Pollify - Interactive Polls
@@ -47,6 +46,7 @@ if (is_admin()) {
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/analytics.php';
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-activity.php';
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/help.php';
+    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/demo.php';
     
     // Admin notices and other admin-specific functionality
     add_action('admin_enqueue_scripts', 'pollify_admin_scripts');

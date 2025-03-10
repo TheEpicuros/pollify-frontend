@@ -119,6 +119,16 @@ function pollify_admin_menu() {
         'pollify-help',
         'pollify_help_page'
     );
+    
+    // Add demo page
+    add_submenu_page(
+        'pollify',
+        __('Demo & Testing', 'pollify'),
+        __('Demo & Testing', 'pollify'),
+        'manage_options',
+        'pollify-demo',
+        'pollify_demo_page'
+    );
 }
 
 /**
