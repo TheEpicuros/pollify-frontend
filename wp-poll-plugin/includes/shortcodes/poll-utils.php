@@ -20,3 +20,4 @@ require_once plugin_dir_path(__FILE__) . 'utils/rating-system.php';
 require_once plugin_dir_path(__FILE__) . 'utils/comments-system.php';
 require_once plugin_dir_path(__FILE__) . 'utils/results-renderer.php';
 require_once plugin_dir_path(__FILE__) . 'utils/special-poll-renderers.php';
+
