@@ -26,15 +26,17 @@ function pollify_admin_menu() {
         30
     );
     
+    // Dashboard page
     add_submenu_page(
         'pollify',
-        __('Settings', 'pollify'),
-        __('Settings', 'pollify'),
+        __('Dashboard', 'pollify'),
+        __('Dashboard', 'pollify'),
         'manage_options',
-        'pollify-settings',
-        'pollify_settings_page'
+        'pollify',
+        'pollify_admin_page'
     );
     
+    // Add polls management pages
     add_submenu_page(
         'pollify',
         __('All Polls', 'pollify'),
@@ -50,6 +52,46 @@ function pollify_admin_menu() {
         'manage_options',
         'post-new.php?post_type=poll'
     );
+    
+    // Add analytics page
+    add_submenu_page(
+        'pollify',
+        __('Analytics', 'pollify'),
+        __('Analytics', 'pollify'),
+        'manage_options',
+        'pollify-analytics',
+        'pollify_analytics_page'
+    );
+    
+    // Add user activity page
+    add_submenu_page(
+        'pollify',
+        __('User Activity', 'pollify'),
+        __('User Activity', 'pollify'),
+        'manage_options',
+        'pollify-user-activity',
+        'pollify_user_activity_page'
+    );
+    
+    // Add settings page
+    add_submenu_page(
+        'pollify',
+        __('Settings', 'pollify'),
+        __('Settings', 'pollify'),
+        'manage_options',
+        'pollify-settings',
+        'pollify_settings_page'
+    );
+    
+    // Add help page
+    add_submenu_page(
+        'pollify',
+        __('Help & Documentation', 'pollify'),
+        __('Help & Docs', 'pollify'),
+        'manage_options',
+        'pollify-help',
+        'pollify_help_page'
+    );
 }
 
 /**
@@ -57,4 +99,25 @@ function pollify_admin_menu() {
  */
 function pollify_admin_page() {
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/dashboard.php';
+}
+
+/**
+ * Analytics page callback
+ */
+function pollify_analytics_page() {
+    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/analytics.php';
+}
+
+/**
+ * User activity page callback
+ */
+function pollify_user_activity_page() {
+    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-activity.php';
+}
+
+/**
+ * Help page callback
+ */
+function pollify_help_page() {
+    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/help.php';
 }
