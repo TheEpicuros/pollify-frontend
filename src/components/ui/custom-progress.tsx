@@ -12,6 +12,8 @@ interface CustomProgressProps {
   size?: "sm" | "md" | "lg";
   label?: string;
   animated?: boolean;
+  gradient?: boolean;
+  labelPosition?: "top" | "side";
 }
 
 const CustomProgress = React.forwardRef<HTMLDivElement, CustomProgressProps>(
@@ -26,6 +28,8 @@ const CustomProgress = React.forwardRef<HTMLDivElement, CustomProgressProps>(
       size = "md",
       label,
       animated = false,
+      gradient = false,
+      labelPosition = "top",
       ...props
     },
     ref
@@ -39,11 +43,17 @@ const CustomProgress = React.forwardRef<HTMLDivElement, CustomProgressProps>(
     };
 
     return (
-      <div className={cn("w-full space-y-1.5", className)} ref={ref} {...props}>
+      <div className={cn("w-full", className)} ref={ref} {...props}>
         {(label || showValue) && (
-          <div className="flex items-center justify-between text-xs">
-            {label && <span className="text-muted-foreground">{label}</span>}
-            {showValue && <span className="font-medium">{percentage.toFixed(0)}%</span>}
+          <div className={cn(
+            "flex text-xs mb-1.5",
+            labelPosition === "top" ? "items-center justify-between" : "flex-col gap-1"
+          )}>
+            {label && <span className="text-muted-foreground font-medium">{label}</span>}
+            {showValue && <span className={cn(
+              "font-semibold",
+              labelPosition === "side" && "text-right"
+            )}>{percentage.toFixed(0)}%</span>}
           </div>
         )}
         <div
@@ -55,8 +65,11 @@ const CustomProgress = React.forwardRef<HTMLDivElement, CustomProgressProps>(
         >
           <div
             className={cn(
-              "h-full rounded-full bg-primary transition-all",
+              "h-full rounded-full transition-all duration-500 ease-in-out",
               animated && "animate-pulse",
+              gradient 
+                ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
+                : "bg-primary",
               fillClassName
             )}
             style={{ width: `${percentage}%` }}
