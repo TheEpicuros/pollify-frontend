@@ -72,4 +72,3 @@ function pollify_get_achievement_date($user_id, $activity_type = null, $threshol
     
     return $date ? date('Y-m-d', strtotime($date)) : null;
 }
-
