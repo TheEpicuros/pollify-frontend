@@ -24,3 +24,24 @@ function pollify_has_poll_ended($poll_id) {
     
     return pollify_has_poll_ended_db($poll_id);
 }
+
+/**
+ * Unified function to check if a user can vote on a poll
+ * This centralizes the vote permission checking logic
+ * 
+ * @param int $poll_id Poll ID
+ * @return bool Whether the user can vote
+ */
+function pollify_user_can_vote($poll_id) {
+    // First check if the poll has ended
+    if (pollify_has_poll_ended($poll_id)) {
+        return false;
+    }
+    
+    // Include the core functionality from the post-types helper
+    if (!function_exists('pollify_can_user_vote')) {
+        require_once plugin_dir_path(dirname(__FILE__)) . 'post-types/helpers.php';
+    }
+    
+    return pollify_can_user_vote($poll_id);
+}

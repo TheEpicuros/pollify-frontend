@@ -32,6 +32,10 @@ function pollify_validate_poll_for_voting($poll_id) {
     }
     
     // Check user permissions
+    if (!function_exists('pollify_can_user_vote')) {
+        require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'post-types/helpers.php';
+    }
+    
     if (!pollify_can_user_vote($poll_id)) {
         return array(
             'valid' => false,

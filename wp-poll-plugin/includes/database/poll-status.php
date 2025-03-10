@@ -10,9 +10,9 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Check if user can vote on a poll
+ * Check if user can vote on a poll - database implementation
  */
-function pollify_can_user_vote($poll_id) {
+function pollify_can_user_vote_db($poll_id) {
     $allowed_roles = get_post_meta($poll_id, '_poll_allowed_roles', true);
     
     // If no specific roles are set, allow all

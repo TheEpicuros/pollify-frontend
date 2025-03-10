@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
 
 /**
  * Check if user can vote on a poll
+ * 
+ * Wrapper for the database function to maintain backwards compatibility
  */
 function pollify_can_user_vote($poll_id) {
     // Check if poll has ended
@@ -18,7 +20,12 @@ function pollify_can_user_vote($poll_id) {
         return false;
     }
     
-    // Check user role restrictions
+    // Include the core database function if not already included
+    if (!function_exists('pollify_can_user_vote_db')) {
+        require_once plugin_dir_path(dirname(__FILE__)) . 'database/poll-status.php';
+    }
+    
+    // This implementation adds additional checks on top of the database function
     $allowed_roles = get_post_meta($poll_id, '_poll_allowed_roles', true);
     
     if (!is_array($allowed_roles)) {
@@ -48,4 +55,3 @@ function pollify_can_user_vote($poll_id) {
     
     return false;
 }
-
