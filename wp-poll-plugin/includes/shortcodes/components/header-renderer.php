@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Poll header rendering functions

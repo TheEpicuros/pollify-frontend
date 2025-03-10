@@ -144,22 +144,6 @@ function pollify_get_poll_type_options() {
 }
 
 /**
- * Get poll type for a specific poll
- * 
- * @param int $poll_id Poll ID
- * @return string Poll type slug
- */
-function pollify_get_poll_type($poll_id) {
-    $terms = get_the_terms($poll_id, 'poll_type');
-    
-    if (!empty($terms) && !is_wp_error($terms)) {
-        return $terms[0]->slug;
-    }
-    
-    return 'multiple-choice'; // Default type
-}
-
-/**
  * Get poll type name for a specific poll
  * 
  * @param int $poll_id Poll ID
@@ -190,4 +174,3 @@ function pollify_get_poll_type_description($type_slug) {
     
     return '';
 }
-
