@@ -1,4 +1,4 @@
-<?php
+
 <?php
 /**
  * Database functions for retrieving poll data
