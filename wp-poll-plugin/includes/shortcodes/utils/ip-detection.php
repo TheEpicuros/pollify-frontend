@@ -1,4 +1,3 @@
-
 <?php
 /**
  * IP detection utility functions
@@ -19,7 +18,7 @@ require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/formattin
  * @return bool True if user has voted, false otherwise
  */
 function pollify_has_user_voted_by_ip($poll_id) {
-    // Get user IP
+    // Get user IP using the core utility function
     $user_ip = pollify_get_user_ip();
     
     // Get vote records for this poll
@@ -40,7 +39,7 @@ function pollify_has_user_voted_by_ip($poll_id) {
  * @return bool True if recorded successfully, false otherwise
  */
 function pollify_record_vote_by_ip($poll_id) {
-    // Get user IP
+    // Get user IP using the core utility function
     $user_ip = pollify_get_user_ip();
     
     // Get existing vote records
