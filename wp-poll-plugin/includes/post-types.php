@@ -13,5 +13,5 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . 'post-types/register.php';
 require_once plugin_dir_path(__FILE__) . 'post-types/taxonomies.php';
 require_once plugin_dir_path(__FILE__) . 'post-types/meta-boxes/main.php';
-require_once plugin_dir_path(__FILE__) . 'post-types/save-meta.php';
+// The save-meta.php file is now included in meta-boxes/main.php
 require_once plugin_dir_path(__FILE__) . 'post-types/helpers.php';

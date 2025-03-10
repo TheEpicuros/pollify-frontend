@@ -13,6 +13,7 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . 'register.php';
 require_once plugin_dir_path(__FILE__) . 'poll-options.php';
 require_once plugin_dir_path(__FILE__) . 'poll-settings.php';
+require_once plugin_dir_path(__FILE__) . 'save-meta.php';
 
 // Register the meta boxes
 add_action('add_meta_boxes', 'pollify_add_meta_boxes');
