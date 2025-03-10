@@ -22,11 +22,29 @@ function pollify_enqueue_scripts() {
     // Enqueue jQuery
     wp_enqueue_script('jquery');
     
-    // Enqueue plugin CSS
+    // Enqueue all CSS files
+    $css_files = array(
+        'pollify-base' => 'base.css',
+        'pollify-options' => 'options.css',
+        'pollify-results' => 'results.css',
+        'pollify-card-list' => 'card-list.css',
+        'pollify-create-form' => 'create-form.css',
+    );
+    
+    foreach ($css_files as $handle => $filename) {
+        wp_enqueue_style(
+            $handle,
+            POLLIFY_PLUGIN_URL . 'assets/css/' . $filename,
+            array(),
+            POLLIFY_VERSION
+        );
+    }
+    
+    // Main CSS file (for backward compatibility)
     wp_enqueue_style(
         'pollify-styles', 
         POLLIFY_PLUGIN_URL . 'assets/css/pollify.css', 
-        array(), 
+        array_keys($css_files), 
         POLLIFY_VERSION
     );
     

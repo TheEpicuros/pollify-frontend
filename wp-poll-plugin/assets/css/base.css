@@ -1,0 +1,52 @@
+
+/* Base styles for Pollify Plugin */
+
+.pollify-poll {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.pollify-poll-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.pollify-poll-title {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.pollify-poll-description {
+    margin-bottom: 1.5rem;
+    color: #4b5563;
+}
+
+/* Messages */
+.pollify-error {
+    padding: 0.75rem;
+    margin: 1rem 0;
+    border-radius: 0.375rem;
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.pollify-info {
+    padding: 0.75rem;
+    margin: 1rem 0;
+    border-radius: 0.375rem;
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+.pollify-poll-message {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
