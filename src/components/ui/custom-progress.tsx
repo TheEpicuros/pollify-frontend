@@ -9,7 +9,7 @@ interface CustomProgressProps {
   bgClassName?: string;
   fillClassName?: string;
   showValue?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   label?: string;
   animated?: boolean;
   gradient?: boolean;
@@ -37,6 +37,7 @@ const CustomProgress = React.forwardRef<HTMLDivElement, CustomProgressProps>(
     const percentage = Math.min(100, Math.max(0, (value / max) * 100));
     
     const sizeClasses = {
+      xs: "h-1",
       sm: "h-1.5",
       md: "h-2.5",
       lg: "h-4",
@@ -65,14 +66,17 @@ const CustomProgress = React.forwardRef<HTMLDivElement, CustomProgressProps>(
         >
           <div
             className={cn(
-              "h-full rounded-full transition-all duration-500 ease-in-out",
+              "h-full rounded-full transition-all duration-700 ease-in-out",
               animated && "animate-pulse",
               gradient 
                 ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
                 : "bg-primary",
               fillClassName
             )}
-            style={{ width: `${percentage}%` }}
+            style={{ 
+              width: `${percentage}%`,
+              transition: "width 1s cubic-bezier(0.4, 0, 0.2, 1)" 
+            }}
           />
         </div>
       </div>

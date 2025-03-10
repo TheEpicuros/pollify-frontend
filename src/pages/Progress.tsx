@@ -15,7 +15,7 @@ const Progress = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
               className="glass-card p-6 sm:p-8 rounded-xl shadow-lg backdrop-blur-sm bg-white/80 dark:bg-slate-900/80 border border-slate-200/50 dark:border-slate-700/50"
             >
               <ProjectProgress />
