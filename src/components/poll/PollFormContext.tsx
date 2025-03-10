@@ -47,13 +47,13 @@ export const PollFormProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       case "check-all":
         return ["Option 1", "Option 2", "Option 3"];
       case "ranked-choice":
-        return ["Option 1", "Option 2", "Option 3"];
+        return ["Option 1", "Option 2", "Option 3", "Option 4"];
       case "image-based":
         return ["Image 1", "Image 2"];
       case "quiz":
         return ["Answer 1", "Answer 2", "Answer 3", "Answer 4"];
       default:
-        return ["", ""];
+        return ["Option 1", "Option 2"];
     }
   };
 

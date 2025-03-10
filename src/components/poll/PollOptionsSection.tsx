@@ -9,9 +9,13 @@ interface PollOptionsSectionProps {
   handleAddOption: () => void;
   handleRemoveOption: (index: number) => void;
   handleOptionChange: (index: number, value: string) => void;
+  canRemoveOption?: boolean;
   showImages?: boolean;
   optionImages?: string[];
   handleImageUpload?: (index: number, file: File) => void;
+  showCorrectAnswers?: boolean;
+  correctAnswers?: string[];
+  onToggleCorrectAnswer?: (index: string) => void;
 }
 
 const PollOptionsSection = ({
@@ -19,9 +23,13 @@ const PollOptionsSection = ({
   handleAddOption,
   handleRemoveOption,
   handleOptionChange,
+  canRemoveOption = true,
   showImages = false,
   optionImages = [],
   handleImageUpload,
+  showCorrectAnswers = false,
+  correctAnswers = [],
+  onToggleCorrectAnswer,
 }: PollOptionsSectionProps) => {
   return (
     <div className="space-y-3">
@@ -36,9 +44,11 @@ const PollOptionsSection = ({
               index={index}
               handleOptionChange={handleOptionChange}
               handleRemoveOption={handleRemoveOption}
-              canRemove={options.length > 2}
+              canRemove={canRemoveOption && options.length > 2}
               imageUrl={showImages ? optionImages[index] : undefined}
               onImageUpload={showImages ? handleImageUpload : undefined}
+              isCorrectAnswer={showCorrectAnswers ? correctAnswers?.includes(index.toString()) : undefined}
+              onToggleCorrectAnswer={showCorrectAnswers ? onToggleCorrectAnswer : undefined}
             />
           ))}
         </AnimatePresence>
