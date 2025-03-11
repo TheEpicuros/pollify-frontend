@@ -28,6 +28,17 @@ if (!function_exists('pollify_register_function')) {
      */
     function pollify_register_function($function_name, $file_path) {
         if (isset($GLOBALS['pollify_function_registry'][$function_name])) {
+            if ($GLOBALS['pollify_function_registry'][$function_name] !== $file_path) {
+                // Log the duplicate registration attempt
+                if (WP_DEBUG && function_exists('error_log')) {
+                    error_log(sprintf(
+                        'Pollify: Attempted to re-register function %s in %s (already registered in %s)',
+                        $function_name,
+                        $file_path,
+                        $GLOBALS['pollify_function_registry'][$function_name]
+                    ));
+                }
+            }
             // Function already registered
             return false;
         }
@@ -79,16 +90,13 @@ if (!function_exists('pollify_define_function')) {
         if (function_exists($function_name)) {
             // Log a warning about attempted redefinition
             $registered_path = pollify_get_function_path($function_name);
-            if ($registered_path && $registered_path !== $file_path) {
-                $message = sprintf(
-                    'Warning: Attempted to redefine function %s in %s but it is already defined in %s',
+            if ($registered_path && $registered_path !== $file_path && WP_DEBUG && function_exists('error_log')) {
+                error_log(sprintf(
+                    'Pollify: Attempted to redefine function %s in %s but it is already defined in %s',
                     $function_name,
                     $file_path,
                     $registered_path
-                );
-                if (function_exists('error_log')) {
-                    error_log($message);
-                }
+                ));
             }
             return false;
         }
@@ -97,9 +105,7 @@ if (!function_exists('pollify_define_function')) {
         pollify_register_function($function_name, $file_path);
         
         // Define the function
-        $args = array();
         $function_string = 'function ' . $function_name . '(';
-        $param_count = 0;
         
         // Add parameters to the function definition
         $reflection = new ReflectionFunction($function_definition);
@@ -126,13 +132,12 @@ if (!function_exists('pollify_define_function')) {
                     $function_string .= " = " . $default;
                 }
             }
-            
-            $param_count++;
         }
         
         $function_string .= ') {
             $args = func_get_args();
-            return call_user_func_array($function_definition, $args);
+            $result = call_user_func_array($function_definition, $args);
+            return $result;
         }';
         
         // Use eval to define the function dynamically
@@ -159,10 +164,31 @@ if (!function_exists('pollify_should_define_function')) {
         
         if ($canonical_path && $canonical_path !== $current_file) {
             // Function is registered in another file, so require that file
-            require_once $canonical_path;
-            return false;
+            if (file_exists($canonical_path)) {
+                require_once $canonical_path;
+                return false;
+            }
         }
         
         return true;
     }
+}
+
+/**
+ * Dump the function registry for debugging (only in WP_DEBUG mode)
+ */
+function pollify_debug_function_registry() {
+    if (!WP_DEBUG || !current_user_can('manage_options')) {
+        return;
+    }
+    
+    echo '<div class="notice notice-info"><p>Function Registry Debug:</p>';
+    echo '<pre>';
+    print_r($GLOBALS['pollify_function_registry']);
+    echo '</pre></div>';
+}
+
+// Only add this action in debug mode
+if (WP_DEBUG) {
+    add_action('admin_notices', 'pollify_debug_function_registry');
 }

@@ -33,6 +33,9 @@ define('POLLIFY_PLUGIN_BASENAME', plugin_basename(__FILE__));
 require_once POLLIFY_PLUGIN_DIR . 'includes/core/utils/function-exists.php';
 require_once POLLIFY_PLUGIN_DIR . 'includes/core/utils/function-registry.php';
 
+// Explicitly include core utilities main file for proper function registry initialization
+require_once POLLIFY_PLUGIN_DIR . 'includes/core/utils/main.php';
+
 // Include database functions next to ensure they're available during activation
 require_once POLLIFY_PLUGIN_DIR . 'includes/database/main.php';
 

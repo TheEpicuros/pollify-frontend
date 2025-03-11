@@ -9,6 +9,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(dirname(__FILE__)))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
  * Class to handle rendering of open-ended poll results
  */
@@ -74,10 +80,17 @@ class Pollify_OpenEnded_Renderer {
         return ob_get_clean();
     }
     
-    // Alias for backward compatibility - using a different method name
-    public static function render_results() {
-        // Get arguments
-        $args = func_get_args();
-        return call_user_func_array([self::class, 'render_open_ended_results'], $args);
+    // Function is now registered properly with the function registry system
+    public static function register_functions() {
+        $current_file = __FILE__;
+        
+        if (pollify_can_define_function('pollify_render_open_ended_results')) {
+            pollify_declare_function('pollify_render_open_ended_results', function($poll_id, $options, $vote_counts) {
+                return self::render_open_ended_results($poll_id, $options, $vote_counts);
+            }, $current_file);
+        }
     }
 }
+
+// Register functions with the function registry
+Pollify_OpenEnded_Renderer::register_functions();
