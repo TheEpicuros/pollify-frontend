@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// GitHub integration test comment - safe to remove
+// GitHub integration test - this comment should appear in your GitHub repository if syncing works properly
 
 // Define plugin constants
 define('POLLIFY_VERSION', '1.0.0');
