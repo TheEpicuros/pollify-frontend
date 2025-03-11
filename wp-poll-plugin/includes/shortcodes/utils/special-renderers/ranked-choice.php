@@ -1,7 +1,7 @@
 
 <?php
 /**
- * Ranked-choice poll type renderer
+ * Ranked choice poll specialized renderer
  */
 
 // Exit if accessed directly
@@ -9,171 +9,99 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(dirname(__FILE__)))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
- * Class to handle rendering of ranked-choice poll results
+ * Ranked choice renderer class
  */
 class Pollify_RankedChoice_Renderer {
-    
     /**
-     * Render ranked-choice poll results
-     *
-     * @param int $poll_id The poll ID
-     * @param array $options The poll options
-     * @param array $vote_counts The vote counts
-     * @return string The HTML for the ranked-choice poll results
+     * Render ranked choice poll results
      */
     public static function render_ranked_choice_results($poll_id, $options, $vote_counts) {
+        // Get ranked data
         global $wpdb;
-        $table_name = $wpdb->prefix . 'pollify_votes';
+        $votes_table = $wpdb->prefix . 'pollify_votes';
         
-        // For ranked-choice polls, we need to aggregate the rankings
         $rankings = array();
-        $total_votes = 0;
-        
-        // Initialize rankings array
         foreach ($options as $option_id => $option_text) {
+            // Get average ranking for this option
+            $avg_rank = $wpdb->get_var($wpdb->prepare(
+                "SELECT AVG(vote_meta) 
+                FROM $votes_table 
+                WHERE poll_id = %d AND option_id = %d",
+                $poll_id, $option_id
+            ));
+            
             $rankings[$option_id] = array(
                 'text' => $option_text,
-                'total_points' => 0,
-                'first_choice_count' => 0,
-                'positions' => array()
+                'avg_rank' => $avg_rank ? round(floatval($avg_rank), 2) : 0,
+                'votes' => isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0
             );
-            
-            // Initialize positions array (1st place, 2nd place, etc.)
-            for ($i = 1; $i <= count($options); $i++) {
-                $rankings[$option_id]['positions'][$i] = 0;
-            }
         }
         
-        // Get all ranked votes from the database
-        $votes = $wpdb->get_results($wpdb->prepare(
-            "SELECT ranked_options, user_id 
-            FROM $table_name 
-            WHERE poll_id = %d",
-            $poll_id
-        ));
-        
-        // Process each vote
-        foreach ($votes as $vote) {
-            $total_votes++;
-            $ranked_options = maybe_unserialize($vote->ranked_options);
-            
-            if (is_array($ranked_options)) {
-                // Calculate points for each option (reverse of position - higher for better rank)
-                $max_points = count($options);
-                
-                foreach ($ranked_options as $position => $option_id) {
-                    if (isset($rankings[$option_id])) {
-                        // Position is 0-indexed in the array, but we want it 1-indexed for display
-                        $display_position = $position + 1;
-                        
-                        // Add points (reverse scoring - first place gets max points)
-                        $points = $max_points - $position;
-                        $rankings[$option_id]['total_points'] += $points;
-                        
-                        // Increment the position counter
-                        $rankings[$option_id]['positions'][$display_position]++;
-                        
-                        // Count first-choice votes
-                        if ($position === 0) {
-                            $rankings[$option_id]['first_choice_count']++;
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Sort rankings by total points
+        // Sort by average ranking (lower is better)
         uasort($rankings, function($a, $b) {
-            return $b['total_points'] <=> $a['total_points'];
+            if ($a['avg_rank'] == $b['avg_rank']) {
+                return 0;
+            }
+            return ($a['avg_rank'] < $b['avg_rank']) ? -1 : 1;
         });
         
         ob_start();
         ?>
         <div class="pollify-ranked-choice-results">
-            <h3 class="pollify-results-title"><?php _e('Results', 'pollify'); ?> (<?php echo $total_votes; ?> <?php echo _n('vote', 'votes', $total_votes, 'pollify'); ?>)</h3>
+            <div class="pollify-ranked-choice-header">
+                <?php _e('Ranked Choice Results', 'pollify'); ?>
+            </div>
             
-            <?php if ($total_votes === 0) : ?>
-                <p class="pollify-no-votes"><?php _e('No votes yet. Be the first to vote!', 'pollify'); ?></p>
-            <?php else : ?>
-                <div class="pollify-rankings">
-                    <div class="pollify-rankings-header">
-                        <div class="pollify-rank"><?php _e('Rank', 'pollify'); ?></div>
-                        <div class="pollify-option"><?php _e('Option', 'pollify'); ?></div>
-                        <div class="pollify-points"><?php _e('Points', 'pollify'); ?></div>
-                        <div class="pollify-first-choice"><?php _e('1st Choice', 'pollify'); ?></div>
-                    </div>
-                    
-                    <?php 
-                    $rank = 1;
-                    foreach ($rankings as $option_id => $ranking) : 
-                        $first_choice_percent = $total_votes > 0 ? round(($ranking['first_choice_count'] / $total_votes) * 100) : 0;
-                    ?>
-                    <div class="pollify-ranking-item">
-                        <div class="pollify-rank"><?php echo $rank; ?></div>
-                        <div class="pollify-option"><?php echo esc_html($ranking['text']); ?></div>
-                        <div class="pollify-points"><?php echo $ranking['total_points']; ?></div>
-                        <div class="pollify-first-choice">
-                            <?php echo $ranking['first_choice_count']; ?> 
-                            <span class="pollify-percent">(<?php echo $first_choice_percent; ?>%)</span>
+            <div class="pollify-ranked-choice-list">
+                <?php 
+                $rank = 1;
+                foreach ($rankings as $option_id => $data) {
+                    if ($data['votes'] > 0) {
+                        ?>
+                        <div class="pollify-ranked-choice-item">
+                            <div class="pollify-ranked-choice-rank"><?php echo $rank; ?></div>
+                            <div class="pollify-ranked-choice-text"><?php echo esc_html($data['text']); ?></div>
+                            <div class="pollify-ranked-choice-avg">
+                                <?php 
+                                printf(
+                                    __('Average Rank: %s', 'pollify'),
+                                    number_format($data['avg_rank'], 2)
+                                ); 
+                                ?>
+                            </div>
+                            <div class="pollify-ranked-choice-votes">
+                                <?php 
+                                printf(
+                                    _n('%s vote', '%s votes', $data['votes'], 'pollify'),
+                                    number_format_i18n($data['votes'])
+                                ); 
+                                ?>
+                            </div>
                         </div>
-                    </div>
-                    <?php 
+                        <?php
                         $rank++;
-                    endforeach; 
-                    ?>
-                </div>
-                
-                <div class="pollify-position-breakdown">
-                    <h4><?php _e('Position Breakdown', 'pollify'); ?></h4>
-                    <table class="pollify-position-table">
-                        <thead>
-                            <tr>
-                                <th><?php _e('Option', 'pollify'); ?></th>
-                                <?php for ($i = 1; $i <= count($options); $i++) : ?>
-                                <th><?php echo $i; ?><?php echo self::get_ordinal_suffix($i); ?></th>
-                                <?php endfor; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($rankings as $option_id => $ranking) : ?>
-                            <tr>
-                                <td><?php echo esc_html($ranking['text']); ?></td>
-                                <?php for ($i = 1; $i <= count($options); $i++) : ?>
-                                <td><?php echo $ranking['positions'][$i]; ?></td>
-                                <?php endfor; ?>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
+                    }
+                }
+                ?>
+            </div>
         </div>
         <?php
         return ob_get_clean();
     }
-    
-    // Alias for backward compatibility
-    public static function render_results($poll_id, $options, $vote_counts) {
-        return self::render_ranked_choice_results($poll_id, $options, $vote_counts);
-    }
-    
-    /**
-     * Get ordinal suffix for a number (1st, 2nd, 3rd, etc.)
-     *
-     * @param int $n The number
-     * @return string The ordinal suffix
-     */
-    private static function get_ordinal_suffix($n) {
-        if ($n % 100 >= 11 && $n % 100 <= 13) {
-            return 'th';
-        }
-        
-        switch ($n % 10) {
-            case 1:  return 'st';
-            case 2:  return 'nd';
-            case 3:  return 'rd';
-            default: return 'th';
-        }
-    }
+}
+
+/**
+ * Register canonical function for ranked choice poll results rendering
+ */
+if (pollify_can_define_function('pollify_render_ranked_choice_results')) {
+    pollify_declare_function('pollify_render_ranked_choice_results', function($poll_id, $options, $vote_counts) {
+        return Pollify_RankedChoice_Renderer::render_ranked_choice_results($poll_id, $options, $vote_counts);
+    }, $current_file);
 }

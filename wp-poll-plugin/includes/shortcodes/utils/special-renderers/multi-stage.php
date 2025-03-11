@@ -1,7 +1,7 @@
 
 <?php
 /**
- * Multi-stage poll type renderer
+ * Multi-stage poll specialized renderer
  */
 
 // Exit if accessed directly
@@ -16,90 +16,53 @@ require_once plugin_dir_path(dirname(dirname(dirname(__FILE__)))) . 'core/utils/
 $current_file = __FILE__;
 
 /**
- * Class to handle rendering of multi-stage poll results
+ * Multi-stage renderer class
  */
 class Pollify_MultiStage_Renderer {
-    
     /**
      * Render multi-stage poll results
-     *
-     * @param int $poll_id The poll ID
-     * @param array $options The poll options
-     * @param array $vote_counts The vote counts
-     * @param int $total_votes Total number of votes
-     * @return string The HTML for the multi-stage poll results
      */
     public static function render_multi_stage_results($poll_id, $options, $vote_counts, $total_votes) {
-        // Get stage information from poll meta
-        $stages = get_post_meta($poll_id, '_poll_stages', true);
-        if (!is_array($stages) || empty($stages)) {
-            $stages = array('Stage 1'); // Default if no stages are defined
-        }
-        
-        $current_stage = get_post_meta($poll_id, '_poll_current_stage', true);
-        if (empty($current_stage)) {
-            $current_stage = 0; // Default to first stage
-        }
-        
+        // Implementation for multi-stage poll results rendering
         ob_start();
         ?>
         <div class="pollify-multi-stage-results">
-            <div class="pollify-stage-indicator">
-                <h3><?php _e('Current Stage:', 'pollify'); ?> <?php echo esc_html($stages[$current_stage]); ?></h3>
-                <div class="pollify-stage-progress">
-                    <?php foreach ($stages as $index => $stage_name): ?>
-                        <span class="pollify-stage <?php echo ($index == $current_stage) ? 'active' : (($index < $current_stage) ? 'completed' : ''); ?>">
-                            <?php echo esc_html($stage_name); ?>
-                        </span>
-                    <?php endforeach; ?>
-                </div>
+            <div class="pollify-multi-stage-header">
+                <?php _e('Multi-Stage Poll Results', 'pollify'); ?>
             </div>
             
-            <div class="pollify-results-container">
-                <?php if (empty($vote_counts)): ?>
-                    <p class="pollify-no-votes"><?php _e('No votes have been cast for this stage yet.', 'pollify'); ?></p>
-                <?php else: ?>
-                    <h4><?php printf(__('Results for %s', 'pollify'), esc_html($stages[$current_stage])); ?></h4>
-                    <div class="pollify-vote-results">
-                        <?php foreach ($options as $key => $option): 
-                            $count = isset($vote_counts[$key]) ? $vote_counts[$key] : 0;
-                            $percentage = $total_votes > 0 ? round(($count / $total_votes) * 100) : 0;
-                        ?>
-                            <div class="pollify-result-item">
-                                <div class="pollify-result-option"><?php echo esc_html($option); ?></div>
-                                <div class="pollify-result-bar-container">
-                                    <div class="pollify-result-bar" style="width: <?php echo esc_attr($percentage); ?>%"></div>
-                                </div>
-                                <div class="pollify-result-count">
-                                    <?php echo esc_html($count); ?> 
-                                    <span class="pollify-result-percentage">(<?php echo esc_html($percentage); ?>%)</span>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
+            <div class="pollify-multi-stage-chart">
+                <?php 
+                // Implementation for multi-stage results visualization
+                foreach ($options as $option_id => $option_text) {
+                    $votes = isset($vote_counts[$option_id]) ? $vote_counts[$option_id] : 0;
+                    $percentage = $total_votes > 0 ? round(($votes / $total_votes) * 100) : 0;
+                    ?>
+                    <div class="pollify-multi-stage-option">
+                        <div class="pollify-multi-stage-label"><?php echo esc_html($option_text); ?></div>
+                        <div class="pollify-multi-stage-bar-container">
+                            <div class="pollify-multi-stage-bar" style="width: <?php echo $percentage; ?>%"></div>
+                            <div class="pollify-multi-stage-percentage"><?php echo $percentage; ?>%</div>
+                        </div>
+                        <div class="pollify-multi-stage-votes">
+                            <?php echo number_format_i18n($votes); ?> <?php echo _n('vote', 'votes', $votes, 'pollify'); ?>
+                        </div>
                     </div>
-                <?php endif; ?>
+                    <?php
+                }
+                ?>
             </div>
         </div>
         <?php
         return ob_get_clean();
     }
-    
-    /**
-     * Register the renderer functions with the function registry
-     */
-    public static function register_functions() {
-        $current_file = __FILE__;
-        
-        if (pollify_can_define_function('pollify_render_multi_stage_results')) {
-            pollify_declare_function('pollify_render_multi_stage_results', function($poll_id, $options, $vote_counts, $total_votes) {
-                return self::render_multi_stage_results($poll_id, $options, $vote_counts, $total_votes);
-            }, $current_file);
-        }
-    }
 }
 
-// Register the renderer functions
-Pollify_MultiStage_Renderer::register_functions();
-
-// Do not define the pollify_render_special_multi_stage_results function directly here
-// It will be defined in the special-renderers/main.php file using the registry system
+/**
+ * Register canonical function for multi-stage poll results rendering
+ */
+if (pollify_can_define_function('pollify_render_multi_stage_results')) {
+    pollify_declare_function('pollify_render_multi_stage_results', function($poll_id, $options, $vote_counts, $total_votes) {
+        return Pollify_MultiStage_Renderer::render_multi_stage_results($poll_id, $options, $vote_counts, $total_votes);
+    }, $current_file);
+}

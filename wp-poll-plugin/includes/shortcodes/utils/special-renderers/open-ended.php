@@ -1,7 +1,7 @@
 
 <?php
 /**
- * Open-ended poll type renderer
+ * Open-ended poll specialized renderer
  */
 
 // Exit if accessed directly
@@ -16,83 +16,72 @@ require_once plugin_dir_path(dirname(dirname(dirname(__FILE__)))) . 'core/utils/
 $current_file = __FILE__;
 
 /**
- * Class to handle rendering of open-ended poll results
+ * Open-ended renderer class
  */
 class Pollify_OpenEnded_Renderer {
-    
     /**
      * Render open-ended poll results
-     *
-     * @param int $poll_id The poll ID
-     * @param array $options The poll options
-     * @param array $vote_counts The vote counts
-     * @return string The HTML for the open-ended poll results
      */
     public static function render_open_ended_results($poll_id, $options, $vote_counts) {
+        // Get open-ended responses
         global $wpdb;
-        $table_name = $wpdb->prefix . 'pollify_votes';
+        $votes_table = $wpdb->prefix . 'pollify_votes';
         
-        // For open-ended polls, we need to get all the responses
         $responses = $wpdb->get_results($wpdb->prepare(
-            "SELECT user_response, voted_at, user_id 
-            FROM $table_name 
-            WHERE poll_id = %d 
-            ORDER BY voted_at DESC",
+            "SELECT vote_value, COUNT(*) as response_count 
+            FROM $votes_table 
+            WHERE poll_id = %d AND vote_value IS NOT NULL 
+            GROUP BY vote_value 
+            ORDER BY response_count DESC 
+            LIMIT 100",
             $poll_id
         ));
         
         ob_start();
         ?>
         <div class="pollify-open-ended-results">
-            <h3 class="pollify-results-title"><?php _e('Responses', 'pollify'); ?> (<?php echo count($responses); ?>)</h3>
+            <div class="pollify-open-ended-header">
+                <?php _e('Open-Ended Poll Responses', 'pollify'); ?>
+            </div>
             
             <?php if (empty($responses)) : ?>
-                <p class="pollify-no-responses"><?php _e('No responses yet. Be the first to respond!', 'pollify'); ?></p>
+            <div class="pollify-open-ended-empty">
+                <?php _e('No responses yet.', 'pollify'); ?>
+            </div>
             <?php else : ?>
-                <div class="pollify-responses-list">
-                    <?php foreach ($responses as $response) : 
-                        $user_info = '';
-                        if (!empty($response->user_id)) {
-                            $user = get_userdata($response->user_id);
-                            if ($user) {
-                                $user_info = $user->display_name;
-                            }
-                        }
+            <div class="pollify-open-ended-responses">
+                <?php 
+                foreach ($responses as $response) {
                     ?>
-                    <div class="pollify-response-item">
-                        <div class="pollify-response-content">
-                            <?php echo wpautop(esc_html($response->user_response)); ?>
+                    <div class="pollify-open-ended-response">
+                        <div class="pollify-open-ended-text">
+                            <?php echo wpautop(esc_html($response->vote_value)); ?>
                         </div>
-                        <div class="pollify-response-meta">
-                            <?php if ($user_info) : ?>
-                                <span class="pollify-response-user"><?php echo esc_html($user_info); ?></span>
-                            <?php endif; ?>
-                            <span class="pollify-response-date">
-                                <?php echo human_time_diff(strtotime($response->voted_at), current_time('timestamp')); ?> <?php _e('ago', 'pollify'); ?>
-                            </span>
+                        <div class="pollify-open-ended-count">
+                            <?php 
+                            printf(
+                                _n('%s person responded this way', '%s people responded this way', $response->response_count, 'pollify'),
+                                number_format_i18n($response->response_count)
+                            ); 
+                            ?>
                         </div>
                     </div>
-                    <?php endforeach; ?>
-                </div>
+                    <?php
+                }
+                ?>
+            </div>
             <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();
     }
-    
-    /**
-     * Register the renderer functions with the function registry
-     */
-    public static function register_functions() {
-        $current_file = __FILE__;
-        
-        if (pollify_can_define_function('pollify_render_open_ended_results')) {
-            pollify_declare_function('pollify_render_open_ended_results', function($poll_id, $options, $vote_counts) {
-                return self::render_open_ended_results($poll_id, $options, $vote_counts);
-            }, $current_file);
-        }
-    }
 }
 
-// Register the renderer functions
-Pollify_OpenEnded_Renderer::register_functions();
+/**
+ * Register canonical function for open-ended poll results rendering
+ */
+if (pollify_can_define_function('pollify_render_open_ended_results')) {
+    pollify_declare_function('pollify_render_open_ended_results', function($poll_id, $options, $vote_counts) {
+        return Pollify_OpenEnded_Renderer::render_open_ended_results($poll_id, $options, $vote_counts);
+    }, $current_file);
+}
