@@ -20,6 +20,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// GitHub integration test comment - safe to remove
+
 // Define plugin constants
 define('POLLIFY_VERSION', '1.0.0');
 define('POLLIFY_PLUGIN_DIR', plugin_dir_path(__FILE__));
