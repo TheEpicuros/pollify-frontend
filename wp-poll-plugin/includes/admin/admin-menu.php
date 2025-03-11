@@ -74,7 +74,7 @@ function pollify_admin_menu() {
         'edit-tags.php?taxonomy=poll_type&post_type=poll'
     );
     
-    // Add analytics page
+    // Add analytics page - load the file but don't define the function here
     add_submenu_page(
         'pollify',
         __('Analytics', 'pollify'),
@@ -82,14 +82,14 @@ function pollify_admin_menu() {
         'manage_options',
         'pollify-analytics',
         function() { 
-            // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/analytics.php';
-            // Call the function
-            pollify_analytics_page();
+            if (function_exists('pollify_analytics_page')) {
+                pollify_analytics_page();
+            }
         }
     );
     
-    // Add user activity page
+    // Add user activity page - load the file but don't define the function here
     add_submenu_page(
         'pollify',
         __('User Activity', 'pollify'),
@@ -97,14 +97,14 @@ function pollify_admin_menu() {
         'manage_options',
         'pollify-user-activity',
         function() {
-            // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-activity.php';
-            // Call the function
-            pollify_user_activity_page();
+            if (function_exists('pollify_user_activity_page')) {
+                pollify_user_activity_page();
+            }
         }
     );
     
-    // Add user management page
+    // Add user management page - load the file but don't define the function here
     add_submenu_page(
         'pollify',
         __('User Permissions', 'pollify'),
@@ -112,10 +112,10 @@ function pollify_admin_menu() {
         'manage_options',
         'pollify-user-permissions',
         function() {
-            // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-permissions.php';
-            // Call the function
-            pollify_user_permissions_page();
+            if (function_exists('pollify_user_permissions_page')) {
+                pollify_user_permissions_page();
+            }
         }
     );
     
@@ -129,7 +129,7 @@ function pollify_admin_menu() {
         'pollify_settings_menu_callback'
     );
     
-    // Add help page
+    // Add help page - load the file but don't define the function here
     add_submenu_page(
         'pollify',
         __('Help & Documentation', 'pollify'),
@@ -137,10 +137,10 @@ function pollify_admin_menu() {
         'manage_options',
         'pollify-help',
         function() {
-            // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/help.php';
-            // Call the function
-            pollify_help_page();
+            if (function_exists('pollify_help_page')) {
+                pollify_help_page();
+            }
         }
     );
     

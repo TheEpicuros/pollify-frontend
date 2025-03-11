@@ -74,8 +74,10 @@ class Pollify_OpenEnded_Renderer {
         return ob_get_clean();
     }
     
-    // Alias for backward compatibility
-    public static function render_results($poll_id, $options, $vote_counts) {
-        return self::render_open_ended_results($poll_id, $options, $vote_counts);
+    // Alias for backward compatibility - using a different method name
+    public static function render_results() {
+        // Get arguments
+        $args = func_get_args();
+        return call_user_func_array([self::class, 'render_open_ended_results'], $args);
     }
 }

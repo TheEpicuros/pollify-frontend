@@ -78,8 +78,10 @@ class Pollify_MultiStage_Renderer {
         return ob_get_clean();
     }
     
-    // Alias for backward compatibility
-    public static function render_results($poll_id, $options, $vote_counts, $total_votes) {
-        return self::render_multi_stage_results($poll_id, $options, $vote_counts, $total_votes);
+    // Alias for backward compatibility - using a different method name
+    public static function render_results() {
+        // Get arguments
+        $args = func_get_args();
+        return call_user_func_array([self::class, 'render_multi_stage_results'], $args);
     }
 }

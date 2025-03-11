@@ -625,101 +625,27 @@ function pollify_get_daily_activity($period = 'all') {
 }
 
 /**
- * Extend pollify_get_stats to include more analytics information
+ * Get popular polls
  */
-function pollify_get_stats() {
+function pollify_get_popular_polls($limit = 5) {
     global $wpdb;
     
-    // Get basic stats
-    $stats = array(
-        'total_polls' => 0,
-        'active_polls' => 0,
-        'total_votes' => 0,
-        'total_voters' => 0,
-        'votes_per_poll' => 0,
-        'most_active_time' => 'N/A',
-        'logged_in_voters' => 0,
-        'guest_voters' => 0
-    );
-    
-    // Get poll counts
-    $total_polls = wp_count_posts('poll');
-    $stats['total_polls'] = $total_polls->publish + $total_polls->future + $total_polls->draft + $total_polls->pending + $total_polls->private;
-    $stats['active_polls'] = $total_polls->publish;
-    
-    // Get votes data
     $votes_table = $wpdb->prefix . 'pollify_votes';
-    $stats['total_votes'] = $wpdb->get_var("SELECT COUNT(*) FROM $votes_table");
-    $stats['total_voters'] = $wpdb->get_var("SELECT COUNT(DISTINCT user_ip) FROM $votes_table");
+    $query = $wpdb->prepare("
+        SELECT p.ID, p.post_title, COUNT(v.id) as vote_count
+        FROM {$wpdb->posts} p
+        LEFT JOIN $votes_table v ON p.ID = v.poll_id
+        WHERE p.post_type = 'poll' AND p.post_status IN ('publish', 'future', 'private')
+        GROUP BY p.ID
+        ORDER BY vote_count DESC
+        LIMIT %d
+    ", $limit);
     
-    // Calculate average votes per poll
-    if ($stats['active_polls'] > 0) {
-        $stats['votes_per_poll'] = $stats['total_votes'] / $stats['active_polls'];
-    }
-    
-    // Get most active time of day
-    $active_hour = $wpdb->get_var("
-        SELECT HOUR(vote_date) as hour
-        FROM $votes_table
-        GROUP BY hour
-        ORDER BY COUNT(*) DESC
-        LIMIT 1
-    ");
-    
-    if ($active_hour !== null) {
-        $active_hour_int = intval($active_hour);
-        $am_pm = $active_hour_int >= 12 ? 'PM' : 'AM';
-        $hour_12 = $active_hour_int % 12;
-        if ($hour_12 == 0) $hour_12 = 12;
-        $stats['most_active_time'] = $hour_12 . ' ' . $am_pm;
-    }
-    
-    // Get logged in vs guest counts
-    $stats['logged_in_voters'] = $wpdb->get_var("
-        SELECT COUNT(*) 
-        FROM $votes_table
-        WHERE user_id > 0
-    ");
-    
-    $stats['guest_voters'] = $stats['total_votes'] - $stats['logged_in_voters'];
-    
-    return $stats;
+    return $wpdb->get_results($query);
 }
 
-// Extend the stats function if the original isn't available - this is a fallback
+// Import the canonical stats function instead of redefining it
 if (!function_exists('pollify_get_stats')) {
-    function pollify_get_stats() {
-        require_once plugin_dir_path(__FILE__) . 'dashboard/statistics.php';
-        
-        if (function_exists('pollify_get_stats')) {
-            return pollify_get_stats();
-        }
-        
-        // If we still can't load the function, provide a minimal implementation
-        global $wpdb;
-        
-        // Get basic stats
-        $stats = array(
-            'total_polls' => 0,
-            'active_polls' => 0,
-            'total_votes' => 0,
-            'total_voters' => 0,
-            'votes_per_poll' => 0,
-            'most_active_time' => 'N/A',
-            'logged_in_voters' => 0,
-            'guest_voters' => 0
-        );
-        
-        // Get poll counts
-        $total_polls = wp_count_posts('poll');
-        $stats['total_polls'] = $total_polls->publish + $total_polls->future + $total_polls->draft + $total_polls->pending + $total_polls->private;
-        $stats['active_polls'] = $total_polls->publish;
-        
-        // Get votes data
-        $votes_table = $wpdb->prefix . 'pollify_votes';
-        $stats['total_votes'] = $wpdb->get_var("SELECT COUNT(*) FROM $votes_table");
-        $stats['total_voters'] = $wpdb->get_var("SELECT COUNT(DISTINCT user_ip) FROM $votes_table");
-        
-        return $stats;
-    }
+    require_once plugin_dir_path(__FILE__) . 'dashboard/statistics.php';
 }
+

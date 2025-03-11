@@ -94,8 +94,10 @@ class Pollify_RatingScale_Renderer {
         return ob_get_clean();
     }
     
-    // Alias for backward compatibility
-    public static function render_results($poll_id, $options, $vote_counts, $total_votes) {
-        return self::render_rating_scale_results($poll_id, $options, $vote_counts, $total_votes);
+    // Alias for backward compatibility - using a different method name
+    public static function render_results() {
+        // Get arguments
+        $args = func_get_args();
+        return call_user_func_array([self::class, 'render_rating_scale_results'], $args);
     }
 }

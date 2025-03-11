@@ -67,7 +67,7 @@ function pollify_render_quiz_results($poll_id, $options, $user_vote) {
  * Render user vote info - registered as the canonical function
  */
 if (pollify_can_define_function('pollify_render_user_vote_info')) {
-    function pollify_render_user_vote_info($user_vote) {
+    pollify_declare_function('pollify_render_user_vote_info', function($user_vote) {
         if (!$user_vote) {
             return '';
         }
@@ -79,6 +79,5 @@ if (pollify_can_define_function('pollify_render_user_vote_info')) {
         </div>
         <?php
         return ob_get_clean();
-    }
-    pollify_register_function_path('pollify_render_user_vote_info', $current_file);
+    }, $current_file);
 }
