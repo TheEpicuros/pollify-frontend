@@ -9,18 +9,19 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include core validation utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/validation.php';
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
 /**
  * Check if a poll is valid for voting
  */
 function pollify_validate_poll_for_voting($poll_id) {
     // Check if poll exists and is published
-    $poll = get_post($poll_id);
+    $poll_validation = pollify_validate_poll_exists($poll_id);
     
-    if (!$poll || $poll->post_type !== 'poll' || $poll->post_status !== 'publish') {
-        return array(
-            'valid' => false,
-            'message' => __('Poll not found or not published.', 'pollify')
-        );
+    if (!$poll_validation['valid']) {
+        return $poll_validation;
     }
     
     // Check if poll has ended
