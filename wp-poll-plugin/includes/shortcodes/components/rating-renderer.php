@@ -9,10 +9,28 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
- * Get poll rating HTML
+ * Get poll rating HTML - deprecated, use canonical function instead
+ * This function now forwards to the canonical implementation
  */
-function pollify_get_rating_html($poll_id) {
+function pollify_get_rating_html_renderer($poll_id) {
+    // Require the canonical function if it exists
+    if (!function_exists('pollify_get_rating_html')) {
+        pollify_require_function('pollify_get_rating_html');
+    }
+    
+    // Call the canonical function
+    if (function_exists('pollify_get_rating_html')) {
+        return pollify_get_rating_html($poll_id);
+    }
+    
+    // Fallback implementation if canonical function not available
     $user_id = get_current_user_id();
     $has_rated = $user_id ? pollify_has_user_rated($poll_id, $user_id) : false;
     $rating = pollify_get_poll_rating($poll_id);

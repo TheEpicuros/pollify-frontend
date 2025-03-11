@@ -9,6 +9,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
 /**
  * Render the poll type selector grid
  * 
@@ -27,7 +30,13 @@ function pollify_render_poll_type_selector($poll_types) {
             </div>
             <h3 class="pollify-poll-type-title"><?php echo esc_html($type_name); ?></h3>
             <p class="pollify-poll-type-description">
-                <?php echo pollify_get_poll_type_description($type_slug); ?>
+                <?php 
+                // Use the canonical function for getting poll type description
+                if (!function_exists('pollify_get_poll_type_description')) {
+                    pollify_require_function('pollify_get_poll_type_description');
+                }
+                echo pollify_get_poll_type_description($type_slug); 
+                ?>
             </p>
             <button type="button" class="pollify-select-poll-type">
                 <?php _e('Select', 'pollify'); ?>
@@ -72,42 +81,5 @@ function pollify_get_poll_type_icon($type_slug) {
             return 'dashicons-tickets-alt';
         default:
             return 'dashicons-chart-bar';
-    }
-}
-
-/**
- * Get description for poll type
- * 
- * @param string $type_slug The poll type slug
- * @return string Description
- */
-function pollify_get_poll_type_description($type_slug) {
-    switch ($type_slug) {
-        case 'binary':
-            return __('Simple yes/no or either/or questions.', 'pollify');
-        case 'multiple-choice':
-            return __('Select one option from multiple choices.', 'pollify');
-        case 'check-all':
-            return __('Select multiple options that apply.', 'pollify');
-        case 'ranked-choice':
-            return __('Rank options in order of preference.', 'pollify');
-        case 'rating-scale':
-            return __('Rate on a scale (1-5, 1-10, etc).', 'pollify');
-        case 'open-ended':
-            return __('Allow voters to provide text responses.', 'pollify');
-        case 'image-based':
-            return __('Use images as answer options.', 'pollify');
-        case 'quiz':
-            return __('Test knowledge with right/wrong answers.', 'pollify');
-        case 'opinion':
-            return __('Gauge sentiment on specific issues.', 'pollify');
-        case 'straw':
-            return __('Quick, informal sentiment polls.', 'pollify');
-        case 'interactive':
-            return __('Real-time polls with live results.', 'pollify');
-        case 'referendum':
-            return __('Formal votes on specific measures.', 'pollify');
-        default:
-            return __('Standard poll type.', 'pollify');
     }
 }

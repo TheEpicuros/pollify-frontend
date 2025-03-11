@@ -9,10 +9,27 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
- * Get rating UI and data for a poll
+ * Get rating UI and data for a poll - deprecated, use canonical function instead
  */
-function pollify_get_rating_html($poll_id) {
+function pollify_get_rating_system_html($poll_id) {
+    // Require the canonical function if it exists
+    if (!function_exists('pollify_get_rating_html')) {
+        pollify_require_function('pollify_get_rating_html');
+    }
+    
+    // Call the canonical function
+    if (function_exists('pollify_get_rating_html')) {
+        return pollify_get_rating_html($poll_id);
+    }
+    
+    // Fallback implementation if canonical function not available
     $ratings = pollify_get_poll_ratings($poll_id);
     $upvotes = $ratings['upvotes'];
     $downvotes = $ratings['downvotes'];
@@ -69,4 +86,38 @@ function pollify_get_rating_html($poll_id) {
     <?php
     
     return ob_get_clean();
+}
+
+/**
+ * Helper function to get poll ratings if the canonical function isn't available
+ */
+function pollify_get_system_poll_ratings($poll_id) {
+    // Try to use the canonical function first
+    if (!function_exists('pollify_get_poll_ratings')) {
+        pollify_require_function('pollify_get_poll_ratings');
+    }
+    
+    if (function_exists('pollify_get_poll_ratings')) {
+        return pollify_get_poll_ratings($poll_id);
+    }
+    
+    // Fallback implementation
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'pollify_ratings';
+    
+    $upvotes = (int) $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM $table_name WHERE poll_id = %d AND rating = 1",
+        $poll_id
+    ));
+    
+    $downvotes = (int) $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM $table_name WHERE poll_id = %d AND rating = 0",
+        $poll_id
+    ));
+    
+    return array(
+        'upvotes' => $upvotes,
+        'downvotes' => $downvotes,
+        'total' => $upvotes + $downvotes
+    );
 }

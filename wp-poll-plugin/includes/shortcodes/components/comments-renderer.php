@@ -9,26 +9,41 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
- * Get comments HTML
+ * Get comments HTML - deprecated, use canonical function instead
+ * This function now forwards to the canonical implementation
  */
-function pollify_get_comments_html($poll_id) {
+function pollify_get_comments_html_renderer($poll_id) {
+    // Require the canonical function if it exists
+    if (!function_exists('pollify_get_comments_html')) {
+        pollify_require_function('pollify_get_comments_html');
+    }
+    
+    // Call the canonical function
+    if (function_exists('pollify_get_comments_html')) {
+        return pollify_get_comments_html($poll_id);
+    }
+    
+    // Fallback implementation if canonical function not available
+    $comments = get_comments(array(
+        'post_id' => $poll_id,
+        'status' => 'approve',
+        'order' => 'ASC',
+    ));
+    
     ob_start();
     ?>
     <div class="pollify-comments-section">
         <h3 class="pollify-comments-title"><?php _e('Comments', 'pollify'); ?></h3>
         
         <?php if (comments_open($poll_id)) : ?>
-            <?php
-            // Get comments for this poll
-            $comments = get_comments(array(
-                'post_id' => $poll_id,
-                'status' => 'approve',
-                'order' => 'ASC',
-            ));
-            
-            if (!empty($comments)) :
-            ?>
+            <?php if (!empty($comments)) : ?>
                 <div class="pollify-comments-list">
                     <?php
                     wp_list_comments(array(

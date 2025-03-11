@@ -9,10 +9,27 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
- * Get comments HTML for a poll
+ * Get comments HTML for a poll - deprecated, use canonical function instead
  */
-function pollify_get_comments_html($poll_id) {
+function pollify_get_comments_system_html($poll_id) {
+    // Require the canonical function if it exists
+    if (!function_exists('pollify_get_comments_html')) {
+        pollify_require_function('pollify_get_comments_html');
+    }
+    
+    // Call the canonical function
+    if (function_exists('pollify_get_comments_html')) {
+        return pollify_get_comments_html($poll_id);
+    }
+    
+    // Fallback implementation
     $comments = pollify_get_poll_comments($poll_id, 10);
     $allow_comments = get_post_meta($poll_id, '_poll_allow_comments', true) === '1';
     
