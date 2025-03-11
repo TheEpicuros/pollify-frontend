@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Admin analytics page for Pollify
@@ -9,10 +8,18 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(__FILE__)) . 'core/utils/function-exists.php';
+
 /**
  * Render the analytics page
  */
 function pollify_analytics_page() {
+    // Load the canonical stats function
+    if (!function_exists('pollify_get_stats')) {
+        pollify_require_function('pollify_get_stats');
+    }
+    
     // Get statistics
     $stats = pollify_get_stats();
     $time_period = isset($_GET['period']) ? sanitize_text_field($_GET['period']) : 'all';
@@ -26,6 +33,8 @@ function pollify_analytics_page() {
     
     // Get activity by day
     $daily_activity = pollify_get_daily_activity($time_period);
+    
+    // Render the page
     ?>
     <div class="wrap pollify-admin-analytics">
         <h1><?php _e('Pollify Analytics', 'pollify'); ?></h1>
@@ -675,4 +684,42 @@ function pollify_get_stats() {
     $stats['guest_voters'] = $stats['total_votes'] - $stats['logged_in_voters'];
     
     return $stats;
+}
+
+// Extend the stats function if the original isn't available - this is a fallback
+if (!function_exists('pollify_get_stats')) {
+    function pollify_get_stats() {
+        require_once plugin_dir_path(__FILE__) . 'dashboard/statistics.php';
+        
+        if (function_exists('pollify_get_stats')) {
+            return pollify_get_stats();
+        }
+        
+        // If we still can't load the function, provide a minimal implementation
+        global $wpdb;
+        
+        // Get basic stats
+        $stats = array(
+            'total_polls' => 0,
+            'active_polls' => 0,
+            'total_votes' => 0,
+            'total_voters' => 0,
+            'votes_per_poll' => 0,
+            'most_active_time' => 'N/A',
+            'logged_in_voters' => 0,
+            'guest_voters' => 0
+        );
+        
+        // Get poll counts
+        $total_polls = wp_count_posts('poll');
+        $stats['total_polls'] = $total_polls->publish + $total_polls->future + $total_polls->draft + $total_polls->pending + $total_polls->private;
+        $stats['active_polls'] = $total_polls->publish;
+        
+        // Get votes data
+        $votes_table = $wpdb->prefix . 'pollify_votes';
+        $stats['total_votes'] = $wpdb->get_var("SELECT COUNT(*) FROM $votes_table");
+        $stats['total_voters'] = $wpdb->get_var("SELECT COUNT(DISTINCT user_ip) FROM $votes_table");
+        
+        return $stats;
+    }
 }

@@ -22,6 +22,11 @@ function pollify_get_poll_status($poll_id) {
         return 'scheduled';
     }
     
+    // Use the canonical function for checking if poll ended
+    if (!function_exists('pollify_has_poll_ended')) {
+        pollify_require_function('pollify_has_poll_ended');
+    }
+    
     if (pollify_has_poll_ended($poll_id)) {
         return 'ended';
     }
@@ -33,19 +38,18 @@ function pollify_get_poll_status($poll_id) {
  * Get poll type display name - this is a wrapper for the canonical function
  */
 function pollify_get_poll_type_name($poll_id) {
-    // Include the canonical implementation
-    if (!function_exists('pollify_get_poll_type_name_from_taxonomy')) {
-        require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'helpers/poll-types.php';
+    // Require the canonical implementation
+    if (!function_exists('pollify_get_poll_type_name')) {
+        pollify_require_function('pollify_get_poll_type_name');
+        
+        // If requiring the function failed, use a fallback implementation
+        if (!function_exists('pollify_get_poll_type_name')) {
+            $poll_type = pollify_get_poll_type($poll_id);
+            $term = get_term_by('slug', $poll_type, 'poll_type');
+            
+            return $term ? $term->name : __('Standard Poll', 'pollify');
+        }
     }
     
-    // Ensure the function exists before calling it
-    if (function_exists('pollify_get_poll_type_name')) {
-        return pollify_get_poll_type_name($poll_id);
-    }
-    
-    // Fallback implementation if canonical function is unavailable
-    $poll_type = pollify_get_poll_type($poll_id);
-    $term = get_term_by('slug', $poll_type, 'poll_type');
-    
-    return $term ? $term->name : __('Standard Poll', 'pollify');
+    return pollify_get_poll_type_name($poll_id);
 }

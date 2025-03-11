@@ -86,11 +86,48 @@ if (pollify_can_define_function('pollify_get_stats')) {
         // Get unique voters
         $total_voters = $wpdb->get_var("SELECT COUNT(DISTINCT user_ip) FROM $votes_table");
         
+        // Calculate average votes per poll
+        $votes_per_poll = 0;
+        if ($active_polls_count > 0) {
+            $votes_per_poll = $total_votes / $active_polls_count;
+        }
+        
+        // Get most active time of day
+        $active_hour = $wpdb->get_var("
+            SELECT HOUR(vote_date) as hour
+            FROM $votes_table
+            GROUP BY hour
+            ORDER BY COUNT(*) DESC
+            LIMIT 1
+        ");
+        
+        $most_active_time = 'N/A';
+        if ($active_hour !== null) {
+            $active_hour_int = intval($active_hour);
+            $am_pm = $active_hour_int >= 12 ? 'PM' : 'AM';
+            $hour_12 = $active_hour_int % 12;
+            if ($hour_12 == 0) $hour_12 = 12;
+            $most_active_time = $hour_12 . ' ' . $am_pm;
+        }
+        
+        // Get logged in vs guest counts
+        $logged_in_voters = $wpdb->get_var("
+            SELECT COUNT(*) 
+            FROM $votes_table
+            WHERE user_id > 0
+        ");
+        
+        $guest_voters = ($total_votes ? $total_votes : 0) - ($logged_in_voters ? $logged_in_voters : 0);
+        
         return array(
             'total_polls' => $total_polls_count,
             'active_polls' => $active_polls_count,
             'total_votes' => $total_votes ? $total_votes : 0,
-            'total_voters' => $total_voters ? $total_voters : 0
+            'total_voters' => $total_voters ? $total_voters : 0,
+            'votes_per_poll' => $votes_per_poll,
+            'most_active_time' => $most_active_time,
+            'logged_in_voters' => $logged_in_voters ? $logged_in_voters : 0,
+            'guest_voters' => $guest_voters ? $guest_voters : 0
         );
     }
     pollify_register_function_path('pollify_get_stats', $current_file);

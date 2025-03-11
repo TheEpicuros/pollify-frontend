@@ -9,6 +9,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(__FILE__)) . 'core/utils/function-exists.php';
+
 // Register admin menu
 add_action('admin_menu', 'pollify_admin_menu');
 
@@ -79,7 +82,7 @@ function pollify_admin_menu() {
         'manage_options',
         'pollify-analytics',
         function() { 
-            // Include the file that actually defines the function
+            // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/analytics.php';
             // Call the function from that file
             pollify_analytics_page();
@@ -94,7 +97,7 @@ function pollify_admin_menu() {
         'manage_options',
         'pollify-user-activity',
         function() {
-            // Include the file that actually defines the function
+            // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-activity.php';
             // Call the function from that file
             pollify_user_activity_page();
@@ -109,7 +112,7 @@ function pollify_admin_menu() {
         'manage_options',
         'pollify-user-permissions',
         function() {
-            // Include the file that actually defines the function
+            // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-permissions.php';
             // Call the function from that file
             pollify_user_permissions_page();
@@ -134,7 +137,7 @@ function pollify_admin_menu() {
         'manage_options',
         'pollify-help',
         function() {
-            // Include the file that actually defines the function
+            // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/help.php';
             // Call the function from that file
             pollify_help_page();

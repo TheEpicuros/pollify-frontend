@@ -9,59 +9,92 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Include core utilities
-require_once plugin_dir_path(dirname(__FILE__)) . 'core/utils/function-exists.php';
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
 
 /**
- * Wrapper function to maintain compatibility with the canonical function 
- * in validation/poll-validation.php
- * 
+ * Check if poll has ended - registered as the canonical function
+ *
  * @param int $poll_id Poll ID
  * @return bool Whether the poll has ended
  */
-function pollify_has_poll_ended($poll_id) {
-    // Use the function registry system to get the canonical function
-    $canonical_file = plugin_dir_path(dirname(__FILE__)) . 'core/utils/validation/poll-validation.php';
+if (pollify_can_define_function('pollify_has_poll_ended')) {
+    function pollify_has_poll_ended($poll_id) {
+        $end_date = get_post_meta($poll_id, '_poll_end_date', true);
+        
+        if (empty($end_date)) {
+            return false;
+        }
+        
+        $current_time = current_time('timestamp');
+        $end_timestamp = strtotime($end_date);
+        
+        return $end_timestamp < $current_time;
+    }
+    pollify_register_function_path('pollify_has_poll_ended', $current_file);
+}
+
+/**
+ * Check if poll has started
+ *
+ * @param int $poll_id Poll ID
+ * @return bool Whether the poll has started
+ */
+function pollify_has_poll_started($poll_id) {
+    $start_date = get_post_meta($poll_id, '_poll_start_date', true);
     
-    // Include the validation file containing the canonical function
-    if (file_exists($canonical_file)) {
-        require_once $canonical_file;
+    if (empty($start_date)) {
+        return true; // No start date means it has started
     }
     
-    // Check if function exists from the canonical source
-    if (function_exists('pollify_has_poll_ended')) {
-        return pollify_has_poll_ended($poll_id);
+    $current_time = current_time('timestamp');
+    $start_timestamp = strtotime($start_date);
+    
+    return $start_timestamp <= $current_time;
+}
+
+/**
+ * Get poll duration in seconds
+ *
+ * @param int $poll_id Poll ID
+ * @return int|false Duration in seconds or false if no end date
+ */
+function pollify_get_poll_duration($poll_id) {
+    $start_date = get_post_meta($poll_id, '_poll_start_date', true);
+    $end_date = get_post_meta($poll_id, '_poll_end_date', true);
+    
+    if (empty($start_date) || empty($end_date)) {
+        return false;
     }
     
-    // Fallback implementation if canonical function is not available
+    $start_timestamp = strtotime($start_date);
+    $end_timestamp = strtotime($end_date);
+    
+    return $end_timestamp - $start_timestamp;
+}
+
+/**
+ * Get poll remaining time in seconds
+ *
+ * @param int $poll_id Poll ID
+ * @return int|false Remaining time in seconds or false if poll has ended or no end date
+ */
+function pollify_get_poll_remaining_time($poll_id) {
     $end_date = get_post_meta($poll_id, '_poll_end_date', true);
     
     if (empty($end_date)) {
         return false;
     }
     
-    $now = current_time('mysql');
+    $current_time = current_time('timestamp');
+    $end_timestamp = strtotime($end_date);
     
-    return strtotime($end_date) < strtotime($now);
-}
-
-/**
- * Unified function to check if a user can vote on a poll
- * This centralizes the vote permission checking logic
- * 
- * @param int $poll_id Poll ID
- * @return bool Whether the user can vote
- */
-function pollify_user_can_vote($poll_id) {
-    // First check if the poll has ended
-    if (pollify_has_poll_ended($poll_id)) {
-        return false;
+    if ($end_timestamp < $current_time) {
+        return 0; // Poll has ended
     }
     
-    // Include the core database function
-    if (!function_exists('pollify_can_user_vote_db')) {
-        require_once plugin_dir_path(dirname(__FILE__)) . 'database/poll-status.php';
-    }
-    
-    return pollify_can_user_vote_db($poll_id);
+    return $end_timestamp - $current_time;
 }
