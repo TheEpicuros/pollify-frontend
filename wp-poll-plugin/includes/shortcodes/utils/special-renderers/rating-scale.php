@@ -23,7 +23,7 @@ class Pollify_RatingScale_Renderer {
      * @param int $total_votes The total number of votes
      * @return string The HTML for the rating-scale poll results
      */
-    public static function render_results($poll_id, $options, $vote_counts, $total_votes) {
+    public static function render_rating_scale_results($poll_id, $options, $vote_counts, $total_votes) {
         // Calculate average rating
         $total_rating = 0;
         $total_ratings = 0;
@@ -92,5 +92,10 @@ class Pollify_RatingScale_Renderer {
         </div>
         <?php
         return ob_get_clean();
+    }
+    
+    // Alias for backward compatibility
+    public static function render_results($poll_id, $options, $vote_counts, $total_votes) {
+        return self::render_rating_scale_results($poll_id, $options, $vote_counts, $total_votes);
     }
 }

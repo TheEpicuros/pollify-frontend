@@ -37,7 +37,7 @@ function pollify_get_poll_status($poll_id) {
 /**
  * Get poll type display name - this is a wrapper for the canonical function
  */
-function pollify_get_poll_type_name($poll_id) {
+function pollify_get_poll_type_display_name($poll_id) {
     // Require the canonical implementation
     if (!function_exists('pollify_get_poll_type_name')) {
         pollify_require_function('pollify_get_poll_type_name');

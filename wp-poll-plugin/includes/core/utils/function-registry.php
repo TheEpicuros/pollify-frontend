@@ -24,16 +24,14 @@ if (!isset($GLOBALS['pollify_function_registry'])) {
  * @param string $file_path The canonical file path where the function is defined
  * @return bool Whether the function was registered
  */
-if (!function_exists('pollify_register_function')) {
-    function pollify_register_function($function_name, $file_path) {
-        if (isset($GLOBALS['pollify_function_registry'][$function_name])) {
-            // Function already registered
-            return false;
-        }
-        
-        $GLOBALS['pollify_function_registry'][$function_name] = $file_path;
-        return true;
+function pollify_register_function($function_name, $file_path) {
+    if (isset($GLOBALS['pollify_function_registry'][$function_name])) {
+        // Function already registered
+        return false;
     }
+    
+    $GLOBALS['pollify_function_registry'][$function_name] = $file_path;
+    return true;
 }
 
 /**

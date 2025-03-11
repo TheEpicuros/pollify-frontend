@@ -9,6 +9,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
  * Render quiz results with correct answers
  */
@@ -58,18 +64,21 @@ function pollify_render_quiz_results($poll_id, $options, $user_vote) {
 }
 
 /**
- * Render user vote info
+ * Render user vote info - registered as the canonical function
  */
-function pollify_render_user_vote_info($user_vote) {
-    if (!$user_vote) {
-        return '';
+if (pollify_can_define_function('pollify_render_user_vote_info')) {
+    function pollify_render_user_vote_info($user_vote) {
+        if (!$user_vote) {
+            return '';
+        }
+        
+        ob_start();
+        ?>
+        <div class="pollify-user-vote-info">
+            <p><?php _e('Your response has been recorded.', 'pollify'); ?></p>
+        </div>
+        <?php
+        return ob_get_clean();
     }
-    
-    ob_start();
-    ?>
-    <div class="pollify-user-vote-info">
-        <p><?php _e('Your response has been recorded.', 'pollify'); ?></p>
-    </div>
-    <?php
-    return ob_get_clean();
+    pollify_register_function_path('pollify_render_user_vote_info', $current_file);
 }

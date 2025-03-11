@@ -23,7 +23,7 @@ class Pollify_MultiStage_Renderer {
      * @param int $total_votes Total number of votes
      * @return string The HTML for the multi-stage poll results
      */
-    public static function render_results($poll_id, $options, $vote_counts, $total_votes) {
+    public static function render_multi_stage_results($poll_id, $options, $vote_counts, $total_votes) {
         // Get stage information from poll meta
         $stages = get_post_meta($poll_id, '_poll_stages', true);
         if (!is_array($stages) || empty($stages)) {
@@ -76,5 +76,10 @@ class Pollify_MultiStage_Renderer {
         </div>
         <?php
         return ob_get_clean();
+    }
+    
+    // Alias for backward compatibility
+    public static function render_results($poll_id, $options, $vote_counts, $total_votes) {
+        return self::render_multi_stage_results($poll_id, $options, $vote_counts, $total_votes);
     }
 }

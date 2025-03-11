@@ -84,7 +84,7 @@ function pollify_admin_menu() {
         function() { 
             // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/analytics.php';
-            // Call the function from that file
+            // Call the function
             pollify_analytics_page();
         }
     );
@@ -99,7 +99,7 @@ function pollify_admin_menu() {
         function() {
             // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-activity.php';
-            // Call the function from that file
+            // Call the function
             pollify_user_activity_page();
         }
     );
@@ -114,7 +114,7 @@ function pollify_admin_menu() {
         function() {
             // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-permissions.php';
-            // Call the function from that file
+            // Call the function
             pollify_user_permissions_page();
         }
     );
@@ -139,7 +139,7 @@ function pollify_admin_menu() {
         function() {
             // Include the file that defines the function
             require_once POLLIFY_PLUGIN_DIR . 'includes/admin/help.php';
-            // Call the function from that file
+            // Call the function
             pollify_help_page();
         }
     );

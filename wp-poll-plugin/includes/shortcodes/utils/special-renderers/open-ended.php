@@ -22,7 +22,7 @@ class Pollify_OpenEnded_Renderer {
      * @param array $vote_counts The vote counts
      * @return string The HTML for the open-ended poll results
      */
-    public static function render_results($poll_id, $options, $vote_counts) {
+    public static function render_open_ended_results($poll_id, $options, $vote_counts) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'pollify_votes';
         
@@ -72,5 +72,10 @@ class Pollify_OpenEnded_Renderer {
         </div>
         <?php
         return ob_get_clean();
+    }
+    
+    // Alias for backward compatibility
+    public static function render_results($poll_id, $options, $vote_counts) {
+        return self::render_open_ended_results($poll_id, $options, $vote_counts);
     }
 }
