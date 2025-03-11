@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Admin menu registration
@@ -83,12 +82,7 @@ function pollify_admin_menu() {
 		__( 'Analytics', 'pollify' ),
 		'manage_options',
 		'pollify-analytics',
-		function() { 
-			require_once POLLIFY_PLUGIN_DIR . 'includes/admin/analytics.php';
-			if ( function_exists( 'pollify_analytics_page' ) ) {
-				pollify_analytics_page();
-			}
-		}
+		'pollify_analytics_page'
 	);
 	
 	// Add user activity page - load the file but don't define the function here.
