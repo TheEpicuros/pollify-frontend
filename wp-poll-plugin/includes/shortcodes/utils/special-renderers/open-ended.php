@@ -80,7 +80,9 @@ class Pollify_OpenEnded_Renderer {
         return ob_get_clean();
     }
     
-    // Function is now registered properly with the function registry system
+    /**
+     * Register the renderer functions with the function registry
+     */
     public static function register_functions() {
         $current_file = __FILE__;
         
@@ -92,5 +94,5 @@ class Pollify_OpenEnded_Renderer {
     }
 }
 
-// Register functions with the function registry
+// Register the renderer functions
 Pollify_OpenEnded_Renderer::register_functions();

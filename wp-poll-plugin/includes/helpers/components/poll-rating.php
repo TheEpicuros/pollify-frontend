@@ -22,7 +22,7 @@ $current_file = __FILE__;
  * @return string HTML for poll rating
  */
 if (pollify_can_define_function('pollify_get_rating_html')) {
-    function pollify_get_rating_html($poll_id) {
+    pollify_declare_function('pollify_get_rating_html', function($poll_id) {
         $ratings = pollify_get_poll_ratings($poll_id);
         $user_ip = pollify_get_user_ip();
         $user_id = get_current_user_id();
@@ -50,6 +50,5 @@ if (pollify_can_define_function('pollify_get_rating_html')) {
         </div>
         <?php
         return ob_get_clean();
-    }
-    pollify_register_function_path('pollify_get_rating_html', $current_file);
+    }, $current_file);
 }

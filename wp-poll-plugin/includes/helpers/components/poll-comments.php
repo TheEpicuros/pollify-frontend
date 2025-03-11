@@ -22,7 +22,7 @@ $current_file = __FILE__;
  * @return string HTML for poll comments
  */
 if (pollify_can_define_function('pollify_get_comments_html')) {
-    function pollify_get_comments_html($poll_id) {
+    pollify_declare_function('pollify_get_comments_html', function($poll_id) {
         $comments = pollify_get_poll_comments($poll_id, 5);
         
         ob_start();
@@ -89,6 +89,5 @@ if (pollify_can_define_function('pollify_get_comments_html')) {
         </div>
         <?php
         return ob_get_clean();
-    }
-    pollify_register_function_path('pollify_get_comments_html', $current_file);
+    }, $current_file);
 }

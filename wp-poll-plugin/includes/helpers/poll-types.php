@@ -22,15 +22,14 @@ $current_file = __FILE__;
  * @return string Poll type name
  */
 if (pollify_can_define_function('pollify_get_poll_type_name')) {
-    function pollify_get_poll_type_name($poll_id) {
+    pollify_declare_function('pollify_get_poll_type_name', function($poll_id) {
         // Include the core utility function if not already included
         if (!function_exists('pollify_get_poll_type_name_from_taxonomy')) {
             require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'post-types/taxonomies.php';
         }
         
         return pollify_get_poll_type_name_from_taxonomy($poll_id);
-    }
-    pollify_register_function_path('pollify_get_poll_type_name', $current_file);
+    }, $current_file);
 }
 
 /**
@@ -40,7 +39,7 @@ if (pollify_can_define_function('pollify_get_poll_type_name')) {
  * @return string Poll type description
  */
 if (pollify_can_define_function('pollify_get_poll_type_description')) {
-    function pollify_get_poll_type_description($poll_type) {
+    pollify_declare_function('pollify_get_poll_type_description', function($poll_type) {
         $term = get_term_by('slug', $poll_type, 'poll_type');
         
         if ($term && !is_wp_error($term)) {
@@ -48,6 +47,5 @@ if (pollify_can_define_function('pollify_get_poll_type_description')) {
         }
         
         return __('Standard poll with multiple options.', 'pollify');
-    }
-    pollify_register_function_path('pollify_get_poll_type_description', $current_file);
+    }, $current_file);
 }

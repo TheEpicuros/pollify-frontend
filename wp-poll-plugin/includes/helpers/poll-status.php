@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Poll status helper functions
@@ -22,7 +21,7 @@ $current_file = __FILE__;
  * @return bool Whether the poll has ended
  */
 if (pollify_can_define_function('pollify_has_poll_ended')) {
-    function pollify_has_poll_ended($poll_id) {
+    pollify_declare_function('pollify_has_poll_ended', function($poll_id) {
         $end_date = get_post_meta($poll_id, '_poll_end_date', true);
         
         if (empty($end_date)) {
@@ -33,8 +32,7 @@ if (pollify_can_define_function('pollify_has_poll_ended')) {
         $end_timestamp = strtotime($end_date);
         
         return $end_timestamp < $current_time;
-    }
-    pollify_register_function_path('pollify_has_poll_ended', $current_file);
+    }, $current_file);
 }
 
 /**

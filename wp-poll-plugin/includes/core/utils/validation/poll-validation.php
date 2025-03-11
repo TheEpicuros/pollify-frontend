@@ -19,7 +19,7 @@ $current_file = __FILE__;
  * Validate that a poll exists and is publishable
  */
 if (pollify_can_define_function('pollify_validate_poll_exists')) {
-    function pollify_validate_poll_exists($poll_id) {
+    pollify_declare_function('pollify_validate_poll_exists', function($poll_id) {
         if (!$poll_id) {
             return [
                 'valid' => false,
@@ -49,33 +49,21 @@ if (pollify_can_define_function('pollify_validate_poll_exists')) {
             'poll' => $poll,
             'message' => ''
         ];
-    }
-    pollify_register_function_path('pollify_validate_poll_exists', $current_file);
+    }, $current_file);
 }
 
-// Function to check if poll has ended
+// Override function to check if poll has ended - using pollify_require_function to import from canonical source
 if (pollify_can_define_function('pollify_has_poll_ended')) {
-    function pollify_has_poll_ended($poll_id) {
-        $end_date = get_post_meta($poll_id, '_poll_end_date', true);
-        
-        if (empty($end_date)) {
-            return false;
-        }
-        
-        $now = current_time('mysql');
-        
-        return strtotime($end_date) < strtotime($now);
-    }
-    pollify_register_function_path('pollify_has_poll_ended', $current_file);
+    // Instead of defining it, use the registry to find and require the canonical source
+    pollify_require_function('pollify_has_poll_ended');
 }
 
 // Function to check if a post is a valid poll
 if (pollify_can_define_function('pollify_is_valid_poll')) {
-    function pollify_is_valid_poll($poll_id) {
+    pollify_declare_function('pollify_is_valid_poll', function($poll_id) {
         $post = get_post($poll_id);
         return $post && $post->post_type === 'poll';
-    }
-    pollify_register_function_path('pollify_is_valid_poll', $current_file);
+    }, $current_file);
 }
 
 /**
@@ -86,7 +74,7 @@ if (pollify_can_define_function('pollify_is_valid_poll')) {
  * @return bool True if valid, false otherwise
  */
 if (pollify_can_define_function('pollify_validate_poll_option')) {
-    function pollify_validate_poll_option($option_id, $poll_id) {
+    pollify_declare_function('pollify_validate_poll_option', function($option_id, $poll_id) {
         $options = get_post_meta($poll_id, '_poll_options', true);
         
         if (!is_array($options)) {
@@ -94,8 +82,7 @@ if (pollify_can_define_function('pollify_validate_poll_option')) {
         }
         
         return array_key_exists($option_id, $options);
-    }
-    pollify_register_function_path('pollify_validate_poll_option', $current_file);
+    }, $current_file);
 }
 
 /**
@@ -105,7 +92,7 @@ if (pollify_can_define_function('pollify_validate_poll_option')) {
  * @return bool True if valid, false otherwise
  */
 if (pollify_can_define_function('pollify_is_valid_poll_type')) {
-    function pollify_is_valid_poll_type($poll_type) {
+    pollify_declare_function('pollify_is_valid_poll_type', function($poll_type) {
         $valid_types = array(
             'multiple-choice',
             'binary',
@@ -122,6 +109,5 @@ if (pollify_can_define_function('pollify_is_valid_poll_type')) {
         );
         
         return in_array($poll_type, $valid_types);
-    }
-    pollify_register_function_path('pollify_is_valid_poll_type', $current_file);
+    }, $current_file);
 }

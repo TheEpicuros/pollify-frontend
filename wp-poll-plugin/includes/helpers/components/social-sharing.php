@@ -22,7 +22,7 @@ $current_file = __FILE__;
  * @return string HTML for social sharing buttons
  */
 if (pollify_can_define_function('pollify_get_social_sharing_html')) {
-    function pollify_get_social_sharing_html($poll_id) {
+    pollify_declare_function('pollify_get_social_sharing_html', function($poll_id) {
         $poll_url = get_permalink($poll_id);
         $poll_title = get_the_title($poll_id);
         $encoded_url = urlencode($poll_url);
@@ -51,6 +51,5 @@ if (pollify_can_define_function('pollify_get_social_sharing_html')) {
         </div>
         <?php
         return ob_get_clean();
-    }
-    pollify_register_function_path('pollify_get_social_sharing_html', $current_file);
+    }, $current_file);
 }

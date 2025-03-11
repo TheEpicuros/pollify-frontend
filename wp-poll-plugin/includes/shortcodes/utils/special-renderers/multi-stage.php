@@ -9,6 +9,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(dirname(__FILE__)))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
  * Class to handle rendering of multi-stage poll results
  */
@@ -78,10 +84,22 @@ class Pollify_MultiStage_Renderer {
         return ob_get_clean();
     }
     
-    // Alias for backward compatibility - using a different method name
-    public static function render_results() {
-        // Get arguments
-        $args = func_get_args();
-        return call_user_func_array([self::class, 'render_multi_stage_results'], $args);
+    /**
+     * Register the renderer functions with the function registry
+     */
+    public static function register_functions() {
+        $current_file = __FILE__;
+        
+        if (pollify_can_define_function('pollify_render_multi_stage_results')) {
+            pollify_declare_function('pollify_render_multi_stage_results', function($poll_id, $options, $vote_counts, $total_votes) {
+                return self::render_multi_stage_results($poll_id, $options, $vote_counts, $total_votes);
+            }, $current_file);
+        }
     }
 }
+
+// Register the renderer functions
+Pollify_MultiStage_Renderer::register_functions();
+
+// Do not define the pollify_render_special_multi_stage_results function directly here
+// It will be defined in the special-renderers/main.php file using the registry system
