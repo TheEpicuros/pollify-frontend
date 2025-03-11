@@ -12,6 +12,9 @@ if (!defined('ABSPATH')) {
 // Include function registry utilities
 require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
 
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
  * Render the poll type selector grid
  * 
@@ -31,11 +34,17 @@ function pollify_render_poll_type_selector($poll_types) {
             <h3 class="pollify-poll-type-title"><?php echo esc_html($type_name); ?></h3>
             <p class="pollify-poll-type-description">
                 <?php 
-                // Use the canonical function for getting poll type description
+                // Use the registry to access the canonical function for getting poll type description
                 if (!function_exists('pollify_get_poll_type_description')) {
                     pollify_require_function('pollify_get_poll_type_description');
                 }
-                echo pollify_get_poll_type_description($type_slug); 
+                
+                // If the function still doesn't exist, use a fallback message
+                if (function_exists('pollify_get_poll_type_description')) {
+                    echo pollify_get_poll_type_description($type_slug);
+                } else {
+                    echo esc_html__('Description not available.', 'pollify');
+                }
                 ?>
             </p>
             <button type="button" class="pollify-select-poll-type">

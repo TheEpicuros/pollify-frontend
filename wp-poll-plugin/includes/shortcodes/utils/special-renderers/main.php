@@ -11,8 +11,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Include function registry utilities
-require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+// Include function registry utilities - fix the path to use correct directory structure
+require_once plugin_dir_path(dirname(dirname(dirname(__FILE__)))) . 'core/utils/function-exists.php';
 
 // Define the current file path for function registration
 $current_file = __FILE__;
