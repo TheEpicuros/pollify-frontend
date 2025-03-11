@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 
 // Include function existence utility first
 require_once plugin_dir_path(__FILE__) . 'function-exists.php';
+require_once plugin_dir_path(__FILE__) . 'function-registry.php';
 
 // Include utility modules
 require_once plugin_dir_path(__FILE__) . 'array-handling.php';
@@ -29,3 +30,37 @@ require_once plugin_dir_path(__FILE__) . 'ip-handling.php';
 require_once plugin_dir_path(__FILE__) . 'string-handling.php';
 require_once plugin_dir_path(__FILE__) . 'file-handling.php';
 require_once plugin_dir_path(__FILE__) . 'security.php';
+
+/**
+ * Initialize function registry early
+ */
+function pollify_init_function_registry() {
+    // This ensures the function registry is available early
+    // for all plugin components to use
+    if (!isset($GLOBALS['pollify_function_registry'])) {
+        $GLOBALS['pollify_function_registry'] = array();
+    }
+}
+add_action('plugins_loaded', 'pollify_init_function_registry', 1);
+
+/**
+ * Check for function conflicts
+ */
+function pollify_check_function_conflicts() {
+    if (WP_DEBUG && isset($GLOBALS['pollify_function_registry'])) {
+        foreach ($GLOBALS['pollify_function_registry'] as $function => $path) {
+            if (function_exists($function)) {
+                $defined_in = (new ReflectionFunction($function))->getFileName();
+                if ($defined_in !== $path) {
+                    error_log(sprintf(
+                        'Pollify function conflict: %s is registered in %s but defined in %s',
+                        $function,
+                        $path,
+                        $defined_in
+                    ));
+                }
+            }
+        }
+    }
+}
+add_action('init', 'pollify_check_function_conflicts', 999);
