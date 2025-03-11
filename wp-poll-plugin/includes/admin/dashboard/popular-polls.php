@@ -11,6 +11,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
  * Render the popular polls widget
  */
@@ -50,22 +56,24 @@ function pollify_render_popular_polls_widget() {
 }
 
 /**
- * Get popular polls
+ * Get popular polls - registered as canonical function
  */
-function pollify_get_popular_polls($limit = 5) {
-    global $wpdb;
-    
-    $votes_table = $wpdb->prefix . 'pollify_votes';
-    
-    $query = "SELECT p.*, COUNT(v.id) AS vote_count
-              FROM {$wpdb->posts} p
-              LEFT JOIN $votes_table v ON p.ID = v.poll_id
-              WHERE p.post_type = 'poll' AND p.post_status = 'publish'
-              GROUP BY p.ID
-              ORDER BY vote_count DESC
-              LIMIT %d";
-    
-    $popular_polls = $wpdb->get_results($wpdb->prepare($query, $limit));
-    
-    return $popular_polls;
+if (pollify_can_define_function('pollify_get_popular_polls')) {
+    pollify_declare_function('pollify_get_popular_polls', function($limit = 5) {
+        global $wpdb;
+        
+        $votes_table = $wpdb->prefix . 'pollify_votes';
+        
+        $query = "SELECT p.*, COUNT(v.id) AS vote_count
+                FROM {$wpdb->posts} p
+                LEFT JOIN $votes_table v ON p.ID = v.poll_id
+                WHERE p.post_type = 'poll' AND p.post_status = 'publish'
+                GROUP BY p.ID
+                ORDER BY vote_count DESC
+                LIMIT %d";
+        
+        $popular_polls = $wpdb->get_results($wpdb->prepare($query, $limit));
+        
+        return $popular_polls;
+    }, $current_file);
 }

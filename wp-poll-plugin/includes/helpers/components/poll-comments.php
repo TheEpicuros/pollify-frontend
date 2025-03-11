@@ -24,26 +24,31 @@ $current_file = __FILE__;
 if (pollify_can_define_function('pollify_get_comments_html')) {
     pollify_declare_function('pollify_get_comments_html', function($poll_id) {
         $comments = pollify_get_poll_comments($poll_id, 5);
+        $allow_comments = get_post_meta($poll_id, '_poll_allow_comments', true) === '1';
         
         ob_start();
         ?>
-        <div class="pollify-poll-comments" data-poll-id="<?php echo $poll_id; ?>">
+        <div class="pollify-poll-comments" data-poll-id="<?php echo esc_attr($poll_id); ?>">
             <h3 class="pollify-comments-title">
                 <?php _e('Comments', 'pollify'); ?>
                 <span class="pollify-comments-count">(<?php echo count($comments); ?>)</span>
             </h3>
             
-            <?php if (is_user_logged_in()): ?>
+            <?php if ($allow_comments && is_user_logged_in()): ?>
             <div class="pollify-comment-form">
                 <div class="pollify-comment-form-content">
                     <textarea name="pollify_comment" placeholder="<?php _e('Add your comment...', 'pollify'); ?>" rows="3"></textarea>
                 </div>
                 
                 <div class="pollify-comment-form-footer">
-                    <button type="button" class="pollify-submit-comment">
+                    <button type="button" class="pollify-submit-comment" data-nonce="<?php echo wp_create_nonce('pollify-add-comment'); ?>">
                         <?php _e('Submit Comment', 'pollify'); ?>
                     </button>
                 </div>
+            </div>
+            <?php elseif (!$allow_comments): ?>
+            <div class="pollify-comments-disabled">
+                <p><?php _e('Comments are disabled for this poll.', 'pollify'); ?></p>
             </div>
             <?php else: ?>
             <div class="pollify-comment-login-required">
@@ -68,7 +73,7 @@ if (pollify_can_define_function('pollify_get_comments_html')) {
                     <div class="pollify-comment">
                         <div class="pollify-comment-header">
                             <span class="pollify-comment-author"><?php echo esc_html($comment->user_name); ?></span>
-                            <span class="pollify-comment-date"><?php echo pollify_format_date($comment->comment_date); ?></span>
+                            <span class="pollify-comment-date"><?php echo date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($comment->comment_date)); ?></span>
                         </div>
                         
                         <div class="pollify-comment-body">
@@ -77,9 +82,9 @@ if (pollify_can_define_function('pollify_get_comments_html')) {
                     </div>
                     <?php endforeach; ?>
                     
-                    <?php if (count($comments) === 5): ?>
+                    <?php if (count($comments) >= 5): ?>
                     <div class="pollify-load-more-comments">
-                        <button type="button" class="pollify-load-more-button" data-offset="5">
+                        <button type="button" class="pollify-load-more-button" data-offset="5" data-nonce="<?php echo wp_create_nonce('pollify-load-comments'); ?>">
                             <?php _e('Load More Comments', 'pollify'); ?>
                         </button>
                     </div>

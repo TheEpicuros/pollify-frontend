@@ -40,12 +40,37 @@ if (pollify_can_define_function('pollify_get_poll_type_name')) {
  */
 if (pollify_can_define_function('pollify_get_poll_type_description')) {
     pollify_declare_function('pollify_get_poll_type_description', function($poll_type) {
-        $term = get_term_by('slug', $poll_type, 'poll_type');
-        
-        if ($term && !is_wp_error($term)) {
-            return $term->description;
+        switch ($poll_type) {
+            case 'binary':
+                return __('Simple yes/no or either/or questions.', 'pollify');
+            case 'multiple-choice':
+                return __('Select one option from multiple choices.', 'pollify');
+            case 'check-all':
+                return __('Select multiple options that apply.', 'pollify');
+            case 'ranked-choice':
+                return __('Rank options in order of preference.', 'pollify');
+            case 'rating-scale':
+                return __('Rate on a scale (1-5, 1-10, etc).', 'pollify');
+            case 'open-ended':
+                return __('Allow voters to provide text responses.', 'pollify');
+            case 'image-based':
+                return __('Use images as answer options.', 'pollify');
+            case 'quiz':
+                return __('Test knowledge with right/wrong answers.', 'pollify');
+            case 'opinion':
+                return __('Gauge sentiment on specific issues.', 'pollify');
+            case 'straw':
+                return __('Quick, informal sentiment polls.', 'pollify');
+            case 'interactive':
+                return __('Real-time polls with live results.', 'pollify');
+            case 'referendum':
+                return __('Formal votes on specific measures.', 'pollify');
+            default:
+                $term = get_term_by('slug', $poll_type, 'poll_type');
+                if ($term && !is_wp_error($term) && !empty($term->description)) {
+                    return $term->description;
+                }
+                return __('Standard poll with multiple options.', 'pollify');
         }
-        
-        return __('Standard poll with multiple options.', 'pollify');
     }, $current_file);
 }
