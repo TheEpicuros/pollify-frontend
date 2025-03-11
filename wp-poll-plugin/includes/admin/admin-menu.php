@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Admin menu registration
@@ -77,7 +78,12 @@ function pollify_admin_menu() {
         __('Analytics', 'pollify'),
         'manage_options',
         'pollify-analytics',
-        'pollify_analytics_page'
+        function() { 
+            // Include the file that actually defines the function
+            require_once POLLIFY_PLUGIN_DIR . 'includes/admin/analytics.php';
+            // Call the function from that file
+            pollify_analytics_page();
+        }
     );
     
     // Add user activity page
@@ -87,7 +93,12 @@ function pollify_admin_menu() {
         __('User Activity', 'pollify'),
         'manage_options',
         'pollify-user-activity',
-        'pollify_user_activity_page'
+        function() {
+            // Include the file that actually defines the function
+            require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-activity.php';
+            // Call the function from that file
+            pollify_user_activity_page();
+        }
     );
     
     // Add user management page
@@ -97,7 +108,12 @@ function pollify_admin_menu() {
         __('User Permissions', 'pollify'),
         'manage_options',
         'pollify-user-permissions',
-        'pollify_user_permissions_page'
+        function() {
+            // Include the file that actually defines the function
+            require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-permissions.php';
+            // Call the function from that file
+            pollify_user_permissions_page();
+        }
     );
     
     // Add settings page
@@ -117,7 +133,12 @@ function pollify_admin_menu() {
         __('Help & Docs', 'pollify'),
         'manage_options',
         'pollify-help',
-        'pollify_help_page'
+        function() {
+            // Include the file that actually defines the function
+            require_once POLLIFY_PLUGIN_DIR . 'includes/admin/help.php';
+            // Call the function from that file
+            pollify_help_page();
+        }
     );
     
     // Add demo page
@@ -136,39 +157,4 @@ function pollify_admin_menu() {
  */
 function pollify_render_dashboard_page() {
     require_once POLLIFY_PLUGIN_DIR . 'includes/admin/dashboard.php';
-}
-
-/**
- * Analytics page callback
- */
-function pollify_analytics_page() {
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/analytics.php';
-}
-
-/**
- * User activity page callback
- */
-function pollify_user_activity_page() {
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-activity.php';
-}
-
-/**
- * User permissions page callback
- */
-function pollify_user_permissions_page() {
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/user-permissions.php';
-}
-
-/**
- * Help page callback
- */
-function pollify_help_page() {
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/help.php';
-}
-
-/**
- * Settings page callback
- */
-function pollify_settings_menu_callback() {
-    require_once POLLIFY_PLUGIN_DIR . 'includes/admin/settings.php';
 }

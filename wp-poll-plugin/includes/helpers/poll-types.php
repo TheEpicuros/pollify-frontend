@@ -9,18 +9,26 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include function registry utilities
+require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'core/utils/function-exists.php';
+
+// Define the current file path for function registration
+$current_file = __FILE__;
+
 /**
- * This is a wrapper function to maintain compatibility and redirect to the 
- * canonical function in taxonomies.php
+ * Get poll type display name - registered as the canonical function
  *
  * @param int $poll_id Poll ID
  * @return string Poll type name
  */
-function pollify_get_poll_type_name($poll_id) {
-    // Include the core utility function if not already included
-    if (!function_exists('pollify_get_poll_type_name_from_taxonomy')) {
-        require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'post-types/taxonomies.php';
+if (pollify_can_define_function('pollify_get_poll_type_name')) {
+    function pollify_get_poll_type_name($poll_id) {
+        // Include the core utility function if not already included
+        if (!function_exists('pollify_get_poll_type_name_from_taxonomy')) {
+            require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'post-types/taxonomies.php';
+        }
+        
+        return pollify_get_poll_type_name_from_taxonomy($poll_id);
     }
-    
-    return pollify_get_poll_type_name_from_taxonomy($poll_id);
+    pollify_register_function_path('pollify_get_poll_type_name', $current_file);
 }
