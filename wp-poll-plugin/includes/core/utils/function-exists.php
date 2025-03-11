@@ -73,3 +73,38 @@ function pollify_can_define_function($function_name) {
     
     return pollify_should_define_function($function_name, $current_file);
 }
+
+/**
+ * Declare function with standard wrapper template
+ * 
+ * @param string $function_name The name of the function to declare
+ * @param callable $function_implementation The implementation
+ * @param string|null $current_file Optional file path, will be auto-detected if null
+ * @return bool Whether the function was defined
+ */
+function pollify_declare_function($function_name, $function_implementation, $current_file = null) {
+    if ($current_file === null) {
+        $debug_backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+        $current_file = isset($debug_backtrace[0]['file']) ? $debug_backtrace[0]['file'] : __FILE__;
+    }
+    
+    if (pollify_should_define_function($function_name, $current_file)) {
+        pollify_register_function_path($function_name, $current_file);
+        
+        // Create function wrapper and define it
+        if (is_callable($function_implementation)) {
+            return pollify_define_function($function_name, $function_implementation, $current_file);
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * Get all registered functions in the registry
+ * 
+ * @return array Associative array of function names to file paths
+ */
+function pollify_get_all_registered_functions() {
+    return isset($GLOBALS['pollify_function_registry']) ? $GLOBALS['pollify_function_registry'] : array();
+}

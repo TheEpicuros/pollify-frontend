@@ -64,3 +64,41 @@ function pollify_check_function_conflicts() {
     }
 }
 add_action('init', 'pollify_check_function_conflicts', 999);
+
+/**
+ * Generate function conflict report
+ * 
+ * Only available in debug mode for administrators
+ * 
+ * @return array|null Function conflict report or null if not in debug mode
+ */
+function pollify_generate_function_report() {
+    if (!WP_DEBUG || !current_user_can('manage_options')) {
+        return null;
+    }
+    
+    $report = array(
+        'total_functions' => 0,
+        'conflicts' => array(),
+        'registered' => array()
+    );
+    
+    if (isset($GLOBALS['pollify_function_registry'])) {
+        $report['total_functions'] = count($GLOBALS['pollify_function_registry']);
+        $report['registered'] = $GLOBALS['pollify_function_registry'];
+        
+        foreach ($GLOBALS['pollify_function_registry'] as $function => $path) {
+            if (function_exists($function)) {
+                $defined_in = (new ReflectionFunction($function))->getFileName();
+                if ($defined_in !== $path) {
+                    $report['conflicts'][$function] = array(
+                        'registered_in' => $path,
+                        'defined_in' => $defined_in
+                    );
+                }
+            }
+        }
+    }
+    
+    return $report;
+}
